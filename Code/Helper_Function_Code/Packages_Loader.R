@@ -1,0 +1,16 @@
+###Packages required for all analysis
+
+library(deSolve)
+library(ggplot2)
+library(tidyverse)
+library(magrittr)
+library(Rcpp)
+library(viridis)
+library(here) 
+library(directlabels) 
+library(patchwork) 
+library(ggnewscale)
+library(scales)
+library(dplyr)
+library(doParallel)
+library(parallel)
