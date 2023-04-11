@@ -57,14 +57,18 @@ MICE_MORTALITY_THRESHOLD <-
   geom_boxplot(width = 0.5)+
   geom_beeswarm(size = 3,cex = 4)+
   geom_hline(yintercept = 0.65, color='#e6154c', size=0.9)+
-  xlab("Mortality or survival")+
+  xlab("")+
   ylab("Minimum RBC (x 10^6)")+
   theme_bw()+
-  theme(text = element_text(size = 14,color='black'))  +
   theme(axis.line = element_line(color='black'),
         plot.background = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.border = element_blank())
+        panel.border = element_blank(),
+        axis.text = element_text(size = 14,color='black'),
+        axis.title = element_text(size = 15, color = 'black' ))
 
 ###So the threshold of death is  ~6.7 *10^5, rounded to 6.5 * 10^5
+
+ggsave(here("Figures", "01F_MouseMortalityData.pdf"), width = 4, height =5,
+       units ='in')
