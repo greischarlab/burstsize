@@ -32,8 +32,8 @@ for (n in seq(1,nrow(tmp_mat_cast_mort))){
    vertical_df_mort[[n]] <- data.frame(
                       x = vertical_F_mort - 0.25 , 
                       xend = vertical_F_mort - 0.25 , 
-                      y = row_F_mort - 0.025, 
-                      yend = row_F_mort + 0.025)
+                      y = row_F_mort -  0.005, 
+                      yend = row_F_mort +  0.005)
   
 }
 
@@ -60,8 +60,8 @@ for (n in seq(1,ncol(tmp_mat_cast_mort))){
   horizontal_df_mort [[n]] <- data.frame(
     x = col_F_mort - 0.25 ,
     xend = col_F_mort + 0.25 , 
-    y = horizontal_F_mort - 0.025, 
-    yend = horizontal_F_mort  - 0.025)
+    y = horizontal_F_mort -  0.005, 
+    yend = horizontal_F_mort  -  0.005)
   
 }
 hor_seg_mort <- na.omit(do.call(rbind,horizontal_df_mort))
@@ -70,13 +70,11 @@ hor_seg_mort$id <- 'mort'
 ###Does not establish infection#
 ################################
 
-
-
 tmp_df <- data.frame(B_V = x$B_V,
                      C_V = x$C_V,
                      Status = x$status)
 
-tmp_df$Status_Num_fail <- ifelse(tmp_df$Status == 'failed', 0, 1)
+tmp_df$Status_Num_fail <- ifelse(tmp_df$Status == 'Fail', 0, 1)
 
 tmp_mat_cast_fail <- acast(tmp_df,
                            C_V ~ B_V, 
@@ -96,10 +94,10 @@ for (n in seq(1,nrow(tmp_mat_cast_fail))){
   row_F <- ifelse(length(vertical) == 0, NA, row)
   
   vertical_df_fail[[n]] <- data.frame(
-    x = vertical_F  -0.25 , 
+    x = vertical_F  - 0.25 , 
     xend = vertical_F - 0.25 , 
-    y = row_F - 0.025, 
-    yend = row_F + 0.025)
+    y = row_F -  0.005, 
+    yend = row_F +  0.005)
   
 }
 
@@ -122,9 +120,9 @@ for (n in seq(1,ncol(tmp_mat_cast_fail))){
   
   horizontal_df_fail [[n]] <- data.frame(
     x = col_F - 0.25 ,
-    xend = col_F +0.25 , 
-    y = horizontal_F - 0.025, 
-    yend = horizontal_F  - 0.025)
+    xend = col_F + 0.25 , 
+    y = horizontal_F - 0.005, 
+    yend = horizontal_F  -  0.005)
   
 }
 hor_seg_fail <- na.omit(do.call(rbind,horizontal_df_fail))

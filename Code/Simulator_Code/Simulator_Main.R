@@ -83,7 +83,7 @@ Simulator_MalariaPC_DDE_BC_Cut <- function(B_V,C_V,endtime){
                IG = rep(0,n2),
                G = 0)
   
-  times <- seq(0, 100, by = 1/10)
+  times <- seq(0, 150, by = 1/10)
   
   out_DDE <-  ode(y = inits_n, times = times, 
                   func = Erlang_Malaria_Cut, 

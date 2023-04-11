@@ -1,5 +1,5 @@
-##############################################################
-###This produces the necessary data files that is needed for ##
+###############################################################
+###This produces the necessary data files that is needed for##
 ###further analysis                                         ##
 ##############################################################
 
@@ -18,11 +18,11 @@ source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,
               dir.create("Output/Full_Model"), 
-              "Directory exists")
+              "Directory exists already")
 
 ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
        dir.create("Output/Fitness_Model"), 
-       "Directory exists")
+       "Directory exists already")
 
 mc.cores_input = as.numeric(readline(prompt="If you're Mac, input 7. If you're Window, input 1:"))
 
@@ -39,7 +39,7 @@ R_val = 8500000
 
 RM_limit_1 <- ((p_val * R_val) + mu_M)/(p_val * R_val)
 
-B_V_C_V$Establish <- ifelse((1-B_V_C_V$C_V) * B_V_C_V$B_V > RM_limit_1,
+B_V_C_V$Establish <- ifelse((1-B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
                             "Establish","Fail")
 
 
@@ -64,28 +64,30 @@ write.csv(FULL_MODEL_PC_DT, file = here("Output", "Full_Model",
 ###This is the duration of the acute phase (RM WAY)#
 ######################################################
 Duration_Initial_PC <- do.call(rbind, 
-                                 mclapply(FULL_MODEL_PC,
+                                mclapply(FULL_MODEL_PC,
                                          Finder_RM, 
                                          mu_M_c = 48, 
                                          mc.cores = mc.cores_input))
 
 
 ###Assign the burst size and transmission investment 
-Duration_Initial_PC$B_V <- B_V_C_V_F $B_V
-Duration_Initial_PC$C_V <- B_V_C_V_F $C_V
+Duration_Initial_PC$B_V <- B_V_C_V_F$B_V
+Duration_Initial_PC$C_V <- B_V_C_V_F$C_V
 
 ###Only run the function for the burst size and transmission investment
 ###combination that leads to successful infection that does not induce
 ###host mortality
 
-Failed_B_V_C <-   subset(B_V_C_V, B_V_C_V$Establish == "Fail")
+Failed_B_V_C_V <- subset(B_V_C_V, B_V_C_V$Establish == "Fail")
 
 
 Duration_Initial_PC_FAIL <- 
-  data.frame(endtime = 0, up_down = 0, end_fitness = 0,
+  data.frame(endtime = 0, 
+             up_down = 0, 
+             end_fitness = 0,
              status = 'Fail',
-             B_V = Failed_B_V_C $B_V,
-             C_V = Failed_B_V_C $C_V)
+             B_V = Failed_B_V_C_V$B_V,
+             C_V = Failed_B_V_C_V$C_V)
   
   
 
@@ -114,7 +116,8 @@ Duration_Initial_PC_SUCCESS$end_fitness<-
 
 
 
-Fitness_Model_PC_FULL <- rbind.data.frame(Duration_Initial_PC_SUCCESS, 
+
+Fitness_MODEL_PC_FULL <- rbind.data.frame(Duration_Initial_PC_SUCCESS, 
                                           Duration_Initial_PC_FAIL,
                                           Duration_Initial_PC_MORT)
 
@@ -122,6 +125,7 @@ Fitness_Model_PC_FULL <- rbind.data.frame(Duration_Initial_PC_SUCCESS,
 write.csv(Fitness_Model_PC_FULL , file = here("Output",
                                               "Fitness_Model",
                                               "Fitness_MODEL_PC_FULL.csv"))
+
 
 
 
