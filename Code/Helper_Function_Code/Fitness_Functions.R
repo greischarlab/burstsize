@@ -30,8 +30,8 @@ TranP_Func <- function(x) {
 #########################################################################  
 Gametocyte_Fitness <- function(x){
   
-  gam_dat <- data.frame(time = x$time,
-                        gam = x$G)
+  gam_dat <- data.frame(time = x['time'],
+                        gam = x[,"G"])
   
   ###If it's negative then, make it 0 just in case
   gam_dat$gam[gam_dat$gam < 0] <- 0            
@@ -251,9 +251,9 @@ Finder_King <- function(x){
 ###INPUT: The element of the full deSolve output###
 ### as well as the mu_M                         ###
 ###################################################
-
 Finder_RM <- function(x_list, mu_M_c){
-  ###Shape parameter (to ensure we're getting the right columns)
+    
+    ###Shape parameter (to ensure we're getting the right columns)
     n1 = 100
     ###Check first if the infection induces mortality
     ###Look at the red blood cells time series only  
@@ -275,19 +275,10 @@ Finder_RM <- function(x_list, mu_M_c){
    }
     ###This now checks the Acute Phase Duration for the Mice 
      ###That Survived
-  if(mort_time$surv == "surv"){
-     Initial_IRBC <- rowSums(x_list[,3:(n1+2)])[1]
+  
+    if(mort_time$surv == "surv"){
+    p =  2.5e-6
     
-    ###Look at the infected red blood cells time series only  
-    IRBC_TS <- data.frame(time = x_list$time,
-                          IRBC = rowSums(x_list[,3:(n1+2)]))
-    IRBC_TS_Peak <- IRBC_TS[which.max(IRBC_TS$IRBC),]
-   
-    if (IRBC_TS_Peak$time == 0){  #this means the infection fails to establish
-      end_time <- 0 
-    } else {
-       p =   2.5e-6
-       
       rate = (1 - unique(x_list$C_V)) * 
               unique(x_list$B_V)*((x_list[,"R"] * p)/((p * x_list[,"R"]) + 
                                                         mu_M_c))
@@ -301,29 +292,20 @@ Finder_RM <- function(x_list, mu_M_c){
       end_time <- subset(RM_time_df, RM_time_df$time >= min_RM$time & 
                             RM_time_df$rate >= 1)[1,'time']
       
-    }
-    #If the peak is 0 that suggests that the infection never establishes
-    up_down_factor <- ifelse(end_time == 0, 'down', 'up')
     
-    ###If the end time is 0, that means that the infection never establishes
-    ###and the fitness is set to 0. If it's not 0, the host survives
-    ###and we must run a different function to get the fitness
-    end_fitness_status <-  ifelse(end_time == 0, 0, NA)
-    
-    infection_status <- ifelse(end_time == 0, 'failed', 'success')  
     
     return(data.frame(
-      endtime =  end_time ,
-      up_down =  up_down_factor,
-      end_fitness = end_fitness_status,
-      status = infection_status))
+      endtime =  end_time,
+      up_down =  'up',
+      end_fitness = NA,
+      status = 'success'))
     
     
   }else{
     
     ###Look at the infected red blood cells time series only  
     ###Calculating the fitness
-    G_TS <- data.frame(time = x_list$time,
+    G_TS <- data.frame(time = x_list[,'time'],
                        G = x_list[,"G"])
     
     #Prevent negative gamaetocytes 
