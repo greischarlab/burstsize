@@ -289,7 +289,8 @@ Finder_RM <- function(x_list, mu_M_c){
       
       min_RM <- RM_time_df[which.min(RM_time_df$rate),]
       
-      end_time <- subset(RM_time_df, RM_time_df$time >= min_RM$time & 
+      end_time <- subset(RM_time_df, 
+                            RM_time_df$time >= min_RM$time & 
                             RM_time_df$rate >= 1)[1,'time']
       
     
