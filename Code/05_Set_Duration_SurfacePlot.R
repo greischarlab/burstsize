@@ -1,6 +1,11 @@
 ##################
 ###Set durations##
 ##################
+library(here)
+
+### Packages to load
+source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "Fitness_SD_Function.R"))
 
 ###Burst Size Versus Transmission Investment ###
 B_V = seq(1, 50, 0.5) #Burst size
@@ -18,7 +23,10 @@ RM_limit_1 <- ((p_val * R_val) + mu_M)/(p_val * R_val)
 B_V_C_V$Establish <- ifelse((1-B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
                             "Establish","Fail")
 
-###The time point of interests 
+###############################
+###The time point of interests#
+###############################
+
 time_point_of_interest <- c(10,20,30,40,50, 60)
 
 

@@ -2,17 +2,17 @@
 ###acute phase duration and the fitness
 
 Fitness_MODEL_PC_FULL <- read.csv(here("Output", "Fitness_Model",
-                              "Fitness_MODEL_PC_FULL.csv"))
-
+                                   "Fitness_MODEL_PC_FULL.csv"))
+### Packages to load
+source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "Grapher_vert_hor.R"))
 
-horizontal_vert_df <- grapher_mortality_boundary(Fitness_Model_PC_FULL)
+horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC_FULL)
 
+########################################################################
+###The surfaceplot describing the  duration of the acute phases (days)##
+########################################################################
 
-
-#####################################
-###The duration of the acute phases##
-#####################################
 GG_Duration_Main <-
   ggplot(subset(Fitness_MODEL_PC_FULL,
                 Fitness_MODEL_PC_FULL$status != 
@@ -43,7 +43,7 @@ GG_Duration_Main <-
       na.value = "black") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
-  xlab(expression("Burst size" ~ beta)) +
+  xlab(expression(paste("Burst size", "( ",beta,")"))) +
   ylab("Transmission investment (c)") +
   theme(
     text = element_text(size = 14, color = "black"),
@@ -59,12 +59,10 @@ GG_Duration_Main <-
   annotate('text', x = 45, y = 0.1, label = 'Host \nMortality',
          size = 5, color = '#b8fcd5')
 
-  
+########################################################################
+###The surfaceplot describing the cumulative transmission potential (days)##
+########################################################################
 
-
-###########################
-###Plots with the fitness##
-###########################
 GG_Fitness_Cut_PC <- 
   ggplot(subset(Fitness_MODEL_PC_FULL,
                 Fitness_MODEL_PC_FULL$status != 
@@ -89,7 +87,7 @@ GG_Fitness_Cut_PC <-
     option = "magma")+
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
-  xlab(expression("Burst size" ~ beta)) +
+  xlab(expression(paste("Burst size", "( ",beta,")"))) +
   ylab("Transmission investment (c)") +
   theme(
     text = element_text(size = 14),
@@ -105,7 +103,7 @@ GG_Fitness_Cut_PC <-
   annotate('text', x = 45, y = 0.1, label = 'Host \nMortality',
            size = 5, color = '#b8fcd5')
 
-
+###Join the two files together
 GG_Duration_Main + GG_Fitness_Cut_PC + plot_annotation(tag_levels = "A")
 
 ggsave(here("Figures", "Raw", "02_Duration_Fitness_SurfacePlot.pdf"),

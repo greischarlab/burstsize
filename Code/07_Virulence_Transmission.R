@@ -1,119 +1,199 @@
-########################################
-###RED BLOOD CELLS/GAMETOCYTES/CUMULATIVE ###
-#############################################
 ########################################################
-###Understanding how the viable burst size combinations#
-###influence virulence, transmission, and such.     ####
+### Understanding how the viable burst size combinations#
+### influence virulence, transmission, and such.     ####
 ########################################################
 
-###This is for the 
+library(here)
+
+### Packages to load
+source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "Virulence_Transmission_BurstSize.R"))
+
+###
+
+FULL_MODEL_PC_DT <- as.data.frame(fread(here(
+  "Output", "Full_Model",
+  "FULL_MODEL_PC_DT.csv"
+)))
+Fitness_MODEL_PC_FULL <- as.data.frame(fread(here(
+  "Output", "Fitness_Model",
+  "Fitness_MODEL_PC_FULL.csv"
+)))
 
 
-RBC_Amount <-    do.call(rbind,
-                         lapply(FULL_MODEL_PC, 
-                                function(x) 
-                                  min(as.data.frame(x[,"R"]))))
+Main_DF_VT <- Virulence_Transmission_DF_Calculator(
+  FULL_MODEL_PC_DT,
+  Fitness_MODEL_PC_FULL,
+  0.54
+)
+Main_DF_VT$optimal <- ifelse(Main_DF_VT$CTP == max(Main_DF_VT$CTP), 1, NA)
 
+######################################################################
+### Cumulative transmission potential versus peak gametocyte density###
+######################################################################
 
-G_Amount <-    do.call(rbind,
-                       lapply(FULL_MODEL_PC, 
-                              function(x) 
-                                max(as.data.frame(x[,"G"]))))
-
-RBC_Amount_F <- as.data.frame(RBC_Amount)
-G_Amount_F <- as.data.frame(G_Amount )
-
-RBC_Amount_F$B_V <- R_C_V$B_V
-RBC_Amount_F$C_V <- R_C_V$C_V
-RBC_Amount_F$Death <- FULL_T_F_PC$TF.V2
-
-G_Amount_F$B_V <- R_C_V$B_V
-G_Amount_F$C_V <- R_C_V$C_V
-G_Amount_F$Death <- FULL_T_F_PC$TF.V2
-Fitness_Cut_PC$Death <- FULL_T_F_PC$TF.V2
-
-RBC_Amount_F_35 <- subset(RBC_Amount_F, 
-                          RBC_Amount_F$C_V==0.35 &
-                            RBC_Amount_F$Death == 1 &
-                            RBC_Amount_F$B_V >= 5.5)
-
-G_Amount_F_35 <- subset(G_Amount_F, 
-                        G_Amount_F$C_V==0.35 &
-                          G_Amount_F$Death==1 &
-                          G_Amount_F $B_V >= 5.5)
-
-Fitness_Cut_PC_35<- subset(Fitness_Cut_PC, 
-                           Fitness_Cut_PC$C_V==0.35 &
-                             Fitness_Cut_PC$Death==1 &
-                             Fitness_Cut_PC$B_V >=5.5)
-
-Duration_Initial_PC_2_35 <- 
-  subset(Duration_Initial_PC_2, 
-         Duration_Initial_PC_2$C_V==0.35
-         &
-           Duration_Initial_PC_2$Death==1 &
-           Duration_Initial_PC_2$B_V >=5.5)
-
-
-Fitness_Cut_PC_35$RBC <- RBC_Amount_F_35$V1
-Fitness_Cut_PC_35$G <- G_Amount_F_35 $V1
-Fitness_Cut_PC_35$Opt <- RBC_Amount_F_35$Opt
-Fitness_Cut_PC_35$Duration <- Duration_Initial_PC_2_35$endtime
-
-
-###Proportion of red blood cells compared too burst size
-rbc_burst <- ggplot(Fitness_Cut_PC_35,
-                    aes (x=B_V,y= (1- RBC/8500000)))+
-  geom_line()+
-  geom_point(size =3)+
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  xlab("Burst size ")+
-  ylab("Proportion of red blood cells lost")
-
-
-
-###Proportion of red blood cells lost compared
-###to the proportion of maximum gametocytes 
-rbc_gam <- ggplot(Fitness_Cut_PC_35,
-                  aes (x= (1- RBC/8500000), y= G/231044.2))+
-  geom_line()+
-  geom_point(size =3)+
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  xlab("Proportion of red blood cells lost")+
-  ylab("Proportion of maximum gametocytes")
-
-
-###################################################
-###Gametocyes to cumulative transmission potential#
-###################################################
-
-gam_fit <- 
+trans_to_gams <-
   ggplot(
-    Fitness_Cut_PC_35,
-    aes(x= G/231044.2,
-        y = fitness/23.89940))+
-  geom_line()+
-  geom_point(size=3, 
-             lwd=2)+
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  xlab("Proportion of maximum gametocytes")+
-  ylab("Proportion of maximum fitness")+
-  theme(legend.position = "none")
+    Main_DF_VT,
+    aes(
+      x = GMax,
+      y = CTP,
+      group = Status,
+      linetype = Status
+    )
+  ) +
+  geom_line(size =1.2) + 
+  geom_point(
+    aes(
+      color = as.factor(optimal),
+      shape = as.factor(optimal),
+    ),
+    size = 4,
+    stroke = 1
+  ) +
+  scale_color_manual(values = c(
+    `NA` = NA,
+    `1` = "#FF52A3"
+  )) +
+  scale_linetype_manual(values = c(
+    'success' = 1,
+    'mort' = 3
+  ))+
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  xlab("Peak gametocyte density") +
+  ylab("Cumulative transmission potential (f)") +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 13, color = "black")
+  ) 
+  
 
 
-rbc_duration <- ggplot(
-  Fitness_Cut_PC_35,
-  aes (x= 1- RBC/8500000,
-       y = Duration))+
-  geom_line()+
-  geom_point(size=3,lwd=2)+
-  theme_bw()+
-  theme(panel.grid = element_blank())+
-  ylab("Duration (days)")+
-  xlab("Proportion of red blood cells lost")+
-  theme(legend.position = "none")
 
-gam_fit /(rbc_burst + rbc_gam + rbc_duration )
+### Proportion of red blood cells compared too burst size
+rbcmin_to_burst_size <-
+  ggplot(
+    Main_DF_VT,
+    aes(x = B_V, 
+        y = RMin,
+        group = Status,
+        linetype = Status
+    )
+  ) +
+  geom_line(size =1.2) + 
+  geom_point(
+    aes(
+      color = as.factor(optimal),
+      shape = as.factor(optimal),
+    ),
+    size = 4,
+    stroke = 1
+  ) +
+  scale_color_manual(values = c(
+    `NA` = NA,
+    `1` = "#FF52A3"
+  )) +
+  scale_linetype_manual(values = c(
+    'success' = 1,
+    'mort' = 3
+  ))+ 
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  xlab(expression(paste("Burst size", "( ",beta,")"))) +
+  ylab("Minimum RBC density") +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 13, color = "black")
+  )
+
+
+### Maximum gametocyte density to burst size 
+gammax_to_burst_size <-
+  ggplot(
+    Main_DF_VT,
+    aes(
+      x = B_V,
+      y = GMax,
+      group = Status,
+      linetype = Status
+    )
+  ) +
+  geom_line(size =1.2) + 
+  geom_point(
+    aes(
+      color = as.factor(optimal),
+      shape = as.factor(optimal),
+    ),
+    size = 4,
+    stroke = 1
+  ) +
+  scale_color_manual(values = c(
+    `NA` = NA,
+    `1` = "#FF52A3"
+  )) +
+  scale_linetype_manual(values = c(
+    'success' = 1,
+    'mort' = 3
+  ))+ 
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  xlab(expression(paste("Burst size", "( ",beta,")"))) +
+  ylab("Peak gametocyte density") +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 13, color = "black")
+  )
+
+### Length of the acute phase to the burst size 
+acute_phase_to_burst_size <-
+  ggplot(
+    Main_DF_VT,
+    aes(
+      x = B_V,
+      y = End_Time,
+      group = Status,
+      linetype = Status
+    )
+  ) +
+  geom_line(size =1.2) + 
+  geom_point(
+    aes(
+      color = as.factor(optimal),
+      shape = as.factor(optimal),
+    ),
+    size = 4,
+    stroke = 1
+  ) +
+  scale_color_manual(values = c(
+    `NA` = NA,
+    `1` = "#FF52A3"
+  )) +
+  scale_linetype_manual(values = c(
+    'success' = 1,
+    'mort' = 3
+  ))+ 
+  
+  theme_bw() +
+  theme(panel.grid = element_blank()) +
+  xlab(expression(paste("Burst size", "( ",beta,")"))) +
+  ylab("Acute phase") +
+  theme(
+    legend.position = "none",
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 13, color = "black")
+  )
+  xlab(expression(paste("Burst size", "( ",beta,")"))) 
+
+
+(trans_to_gams) / (rbcmin_to_burst_size + gammax_to_burst_size + acute_phase_to_burst_size) +
+    plot_annotation(tag_levels = "A")
+
+  ggsave(here("Figures", "Raw", "Virulence_Transmission.pdf"), height =8, width =10,
+         units = 'in')
+
+  

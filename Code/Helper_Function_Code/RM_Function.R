@@ -9,7 +9,7 @@ rate_PMR <- function(x, B_V, C_V, mu_M){
 }
 
 
-rate_PMR_data <- function(x,y, B_Vec, C_Value, mu_M){
+rate_PMR_data <- function(x, y, B_Vec, C_Value, mu_M){
 
   Data_Interest <- 
            subset(x, 
@@ -43,15 +43,21 @@ rate_PMR_data <- function(x,y, B_Vec, C_Value, mu_M){
   
    ###To figure out when the point approximate
    PMR_B_Func<- approxfun(PMR_B[,"time"], PMR_B[,"rate"])
+   PMR_B_Func_root<- approxfun(PMR_B[,"time"], PMR_B[,"rate"] - 1)
+   
    Daily_Trans_Prob_Func <-  approxfun(Data_Interest_Split[[k]][,"time"], 
                                       Daily_Trans_Prob)
    Cum_Trans_Potential_Func<- approxfun(Data_Interest_Split[[k]][,"time"], 
                                         Cum_Trans_Potential)
    
+   PMR_root <- uniroot(PMR_B_Func_root, c(0,20))
+   
    PMR_END = PMR_B_Func(End_Interest[k,]$endtime)
    Daily_Trans_End = Daily_Trans_Prob_Func(End_Interest[k,]$endtime)
    Cum_Trans_End = Cum_Trans_Potential_Func(End_Interest[k,]$endtime)
 
+   
+   
    
    ###Helps with figuring out if the values are in the acute phae or not
     Acute_Cum_Trans = ifelse(Cum_Trans_Potential< End_Interest[k,]$endtime,
@@ -63,19 +69,23 @@ rate_PMR_data <- function(x,y, B_Vec, C_Value, mu_M){
                      endtime = End_Interest[k,]$endtime,
                      PMR_END = PMR_END,
                      Daily_Trans_End = Daily_Trans_End,
-                     Cum_Trans_End =  Cum_Trans_End)
+                     Cum_Trans_End =  Cum_Trans_End,
+                     PMR_root =  PMR_root$root,
+                     Cum_Trans_Root =  PMR_root$root + 2,
+                     Daily_Trans_Root =  PMR_root$root + 2 )
    
    
    
    rate_PMR_DF[[k]] <- cbind.data.frame(PMR_B,
                                    Daily_Trans_Prob, 
                                    Cum_Trans_Potential, which.time)
-  
+  }
   return(list(do.call(rbind, rate_PMR_DF),(do.call(rbind,end_duration_DF))
             ))
    
-   }
 }
+
+
 
   
   
