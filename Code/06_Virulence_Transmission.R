@@ -27,82 +27,47 @@ Main_DF_VT <- Virulence_Transmission_DF_Calculator(
   Fitness_MODEL_PC_FULL,
   0.54
 )
-Main_DF_VT$optimal <- ifelse(Main_DF_VT$CTP == max(Main_DF_VT$CTP), 1, NA)
+Main_DF_VT$optimal <-
+  ifelse(Main_DF_VT$CTP == max(Main_DF_VT$CTP), 1, NA)
 
 ######################################################################
 ### Cumulative transmission potential versus peak gametocyte density###
 ######################################################################
 
-trans_to_gams <-
-  ggplot(
-    Main_DF_VT,
-    aes(
-      x = GMax,
-      y = CTP,
-      group = Status,
-      linetype = Status
-    )
-  ) +
-  geom_line(size =1.2) + 
-  geom_point(
-    aes(
-      color = as.factor(optimal),
-      shape = as.factor(optimal),
-    ),
-    size = 4,
-    stroke = 1
-  ) +
-  scale_color_manual(values = c(
-    `NA` = NA,
-    `1` = "#FF52A3"
-  )) +
-  scale_linetype_manual(values = c(
-    'success' = 1,
-    'mort' = 3
-  ))+
-  theme_bw() +
-  theme(panel.grid = element_blank()) +
-  xlab("Peak gametocyte density") +
-  ylab("Cumulative transmission potential (f)") +
-  theme(
-    legend.position = "none",
-    axis.text = element_text(size = 12, color = "black"),
-    axis.title = element_text(size = 13, color = "black")
-  ) 
-  
-
-
-
 ### Proportion of red blood cells compared too burst size
 rbcmin_to_burst_size <-
   ggplot(
     Main_DF_VT,
-    aes(x = B_V, 
-        y = RMin,
-        group = Status,
-        linetype = Status
+    aes(
+      x = B_V,
+      y = RMin,
+      group = Status,
     )
   ) +
-  geom_line(size =1.2) + 
+  geom_line(size = 1.2) +
   geom_point(
     aes(
       color = as.factor(optimal),
       shape = as.factor(optimal),
     ),
-    size = 4,
+    size = 2,
     stroke = 1
   ) +
   scale_color_manual(values = c(
     `NA` = NA,
     `1` = "#FF52A3"
   )) +
-  scale_linetype_manual(values = c(
-    'success' = 1,
-    'mort' = 3
-  ))+ 
+  new_scale_color() +
+  geom_line(aes(color = Status),
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "success" = "black",
+    "mort" = "#83d4a5"
+  )) +
   theme_bw() +
   theme(panel.grid = element_blank()) +
-  xlab(expression(paste("Burst size", "( ",beta,")"))) +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
   ylab("Minimum RBC density") +
   theme(
     legend.position = "none",
@@ -111,45 +76,49 @@ rbcmin_to_burst_size <-
   )
 
 
-### Maximum gametocyte density to burst size 
-gammax_to_burst_size <-
+### Maximum gametocyte density to burst size
+gcum_to_burst_size <-
   ggplot(
     Main_DF_VT,
     aes(
       x = B_V,
-      y = GMax,
+      y = GCum,
       group = Status,
-      linetype = Status
     )
   ) +
-  geom_line(size =1.2) + 
   geom_point(
     aes(
       color = as.factor(optimal),
       shape = as.factor(optimal),
     ),
-    size = 4,
+    size = 2,
     stroke = 1
   ) +
   scale_color_manual(values = c(
     `NA` = NA,
     `1` = "#FF52A3"
   )) +
-  scale_linetype_manual(values = c(
-    'success' = 1,
-    'mort' = 3
-  ))+ 
+  new_scale_color() +
+  geom_line(aes(color = Status),
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "success" = "black",
+    "mort" = "#83d4a5"
+  )) +
   theme_bw() +
   theme(panel.grid = element_blank()) +
-  xlab(expression(paste("Burst size", "( ",beta,")"))) +
-  ylab("Peak gametocyte density") +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
+  ylab("Cumulative gametocyte density") +
   theme(
     legend.position = "none",
     axis.text = element_text(size = 12, color = "black"),
     axis.title = element_text(size = 13, color = "black")
   )
 
-### Length of the acute phase to the burst size 
+##################################################
+### Length of the acute phase to the burst size ##
+##################################################
 acute_phase_to_burst_size <-
   ggplot(
     Main_DF_VT,
@@ -157,43 +126,43 @@ acute_phase_to_burst_size <-
       x = B_V,
       y = End_Time,
       group = Status,
-      linetype = Status
     )
   ) +
-  geom_line(size =1.2) + 
   geom_point(
     aes(
       color = as.factor(optimal),
       shape = as.factor(optimal),
     ),
-    size = 4,
+    size = 2,
     stroke = 1
   ) +
   scale_color_manual(values = c(
     `NA` = NA,
     `1` = "#FF52A3"
   )) +
-  scale_linetype_manual(values = c(
-    'success' = 1,
-    'mort' = 3
-  ))+ 
-  
+  new_scale_color() +
+  geom_line(aes(color = Status),
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "success" = "black",
+    "mort" = "#83d4a5"
+  )) +
   theme_bw() +
   theme(panel.grid = element_blank()) +
-  xlab(expression(paste("Burst size", "( ",beta,")"))) +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
   ylab("Acute phase") +
   theme(
     legend.position = "none",
     axis.text = element_text(size = 12, color = "black"),
     axis.title = element_text(size = 13, color = "black")
   )
-  xlab(expression(paste("Burst size", "( ",beta,")"))) 
 
 
-(trans_to_gams) / (rbcmin_to_burst_size + gammax_to_burst_size + acute_phase_to_burst_size) +
+rbcmin_to_burst_size + gcum_to_burst_size + acute_phase_to_burst_size +
     plot_annotation(tag_levels = "A")
 
-  ggsave(here("Figures", "Raw", "Virulence_Transmission.pdf"), height =8, width =10,
+  ggsave(here("Figures", "Raw", "Virulence_Transmission.pdf"), height =3, width =8,
          units = 'in')
 
   

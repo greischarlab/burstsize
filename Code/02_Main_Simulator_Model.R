@@ -28,7 +28,6 @@ ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
   "Directory exists already"
 )
 
-
 ### Burst Size Versus Transmission Investment ###
 B_V <- seq(1, 50, 0.5) # Burst size
 C_V <- seq(.01, 1, 0.01) # Transmission investment
@@ -72,12 +71,13 @@ remove(FULL_MODEL_PC_DT)
 ### This is the duration of the acute phase (RM WAY)#
 ######################################################
 
-Duration_Initial_PC <- do.call(
+Duration_Initial_PC <- 
+  do.call(
   rbind,
   mclapply(FULL_MODEL_PC,
     Finder_RM,
     mu_M_c = 48,
-    mc.cores = mc.cores_input
+    mc.cores = 2
   )
 )
 

@@ -70,8 +70,8 @@ hor_seg_mort$id <- 'mort'
 ###Does not establish infection#
 ################################
 
-tmp_df <- data.frame(B_V = x$B_V,
-                     C_V = x$C_V,
+tmp_df <-    data.frame(B_V = as.factor(x$B_V),
+                     C_V = as.factor(x$C_V),
                      Status = x$status)
 
 tmp_df$Status_Num_fail <- ifelse(tmp_df$Status == 'Fail', 0, 1)
