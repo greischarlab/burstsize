@@ -50,7 +50,7 @@ B_V_C_V <- expand.grid(B_V = B_V, C_V = C_V) # Different combinations
 ### The time point of interests#
 ###############################
 
-time_point_of_interest <- c(10, 20, 30, 40, 50, 60,100)
+time_point_of_interest <- c(10, 20, 30, 50,70,100)
 lifespan_interest <- 100
 
 

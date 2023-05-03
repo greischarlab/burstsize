@@ -18,36 +18,17 @@ sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 
 
 ### Burst Size Versus Transmission Investment ###
-B_V <- seq(1, 50, 0.5) # Burst size
-C_V <- seq(.01, 1, 0.01) # Transmission investment
-mu_M_vec <- c(48 * 0.75, 48 * 1.25)
-RI_vec <-  c(8500000 * 0.75, 8500000 * 1.25)
-L_vec <- c(277500,462500)
 
-B_V_C_V_UM <- expand.grid(B_V = B_V, C_V = C_V, mu_M = mu_M_vec) # Different combinations
-B_V_C_V_RI <- expand.grid(B_V = B_V, C_V = C_V, RI = RI_vec)
-B_V_C_V_L<- expand.grid(B_V = B_V, C_V = C_V, L = L_vec)
 
-### I am able to figure out which of the burst and transmission
-### are unable to establish the infection so that I can exclude from
-### simulation (the acute time is set to 0 and transmission potential is set to 0)
-
-p_val <- 2.5e-6
-mu_M <- 48
-R_val <- 8500000
-
-RM_limit_UM <- ((p_val * R_val) + mu_M_vec) / (p_val * R_val)
-RM_limit_RI <- ((p_val * RI_vec) + mu_M ) / (p_val * RI_vec)
-RM_limit <- ((p_val * R_val) + mu_M ) / (p_val * R_val)
-
-B_V_C_V_UM_F <- B_V_C_V_Establisher("UM")
-B_V_C_V_RI_F <-  B_V_C_V_Establisher("RI")
-B_V_C_V_L_F <-  B_V_C_V_Establisher("L")
+B_V_C_V_UM_F <- B_V_C_V_Establisher("UM",0.25)
+B_V_C_V_RI_F <-  B_V_C_V_Establisher("RI",0.25)
+B_V_C_V_L_F <-  B_V_C_V_Establisher("L", 0.25)
 
 ### Simulate infections that are successful
 B_V_C_V_UM_F_E <- subset(B_V_C_V_UM_F, B_V_C_V_UM_F$Establish == "Establish")
 B_V_C_V_RI_F_E <- subset(B_V_C_V_RI_F, B_V_C_V_RI_F$Establish == "Establish")
 B_V_C_V_L_F_E <-  subset(B_V_C_V_L_F , B_V_C_V_L_F $Establish == "Establish")
+
 
 #save(B_V_C_V_UM_F_E, file = here("Cluster", "B_V_C_V_UM_F_E.RData"))
 #save(B_V_C_V_RI_F_E, file = here("Cluster", "B_V_C_V_RI_F_E.RData"))
@@ -61,9 +42,9 @@ B_V_C_V_L_F_E <-  subset(B_V_C_V_L_F , B_V_C_V_L_F $Establish == "Establish")
 FULL_MODEL_PC_UM <- mcmapply(Sens_Analysis,
                           c(B_V_C_V_UM_F_E$B_V),
                           c(B_V_C_V_UM_F_E$C_V),
-                          c(0.25),
+                          c(B_V_C_V_UM_F_E[,3]),
                           "UM",
-                          mc.cores = 3,
+                          mc.cores = 5,
                           SIMPLIFY = FALSE)
 
 ### Combine
@@ -77,8 +58,6 @@ write.csv(FULL_MODEL_PC_UM_DT, file = here(
 remove(FULL_MODEL_PC_UM_DT)
 
 
-
-
 Duration_UM_PC <- do.call(
   rbind,
   mclapply(FULL_MODEL_PC_UM,
@@ -87,9 +66,9 @@ Duration_UM_PC <- do.call(
            mc.cores = 4))
 
 
+
 FITNESS_UM <- Fitness_Finder_SA(
                   B_V_C_V_UM_F,
-                  "UM",
                   Duration_UM_PC)
 
 write.csv(FITNESS_UM , file = here(
@@ -110,14 +89,10 @@ gc()
 FULL_MODEL_PC_RI <- mcmapply(Sens_Analysis,
                              c(B_V_C_V_RI_F_E$B_V),
                              c(B_V_C_V_RI_F_E$C_V),
-                             c(0.25),
+                             c(B_V_C_V_RI_F_E[,3]),
                              "RI",
-                             mc.cores = 3,
+                             mc.cores = 5,
                              SIMPLIFY = FALSE)
-
-FULL_MODEL_PC_PI <- lapply(FULL_MODEL_PC_RI, function (x) 
-                            do.call(rbind,x))
-
 
 ### Combine
 FULL_MODEL_PC_RI_DT <- do.call(rbind, FULL_MODEL_PC_RI)
@@ -132,21 +107,21 @@ remove(FULL_MODEL_PC_RI_DT)
 
 Duration_RI_PC <- do.call(
   rbind,
-  mclapply(FULL_MODEL_PC_PI_F,
+  mclapply(FULL_MODEL_PC_RI,
            Finder_RM_SA,
            sens_var = 'RI',
-           mc.cores = 1))
+           mc.cores = 5))
 
 
 FITNESS_RI <- Fitness_Finder_SA(
   B_V_C_V_RI_F,
-  "RI",
   Duration_RI_PC)
 
 write.csv(FITNESS_RI , file = here(
   "Output", "Fitness_Model",
   "FITNESS_RI.csv"
 ))
+gc()
 
 remove(FULL_MODEL_PC_RI )
 remove(Duration_RI_PC)
@@ -160,9 +135,9 @@ gc()
 FULL_MODEL_PC_L <- mcmapply(Sens_Analysis,
                              c(B_V_C_V_L_F_E$B_V),
                              c(B_V_C_V_L_F_E$C_V),
-                             c(0.25),
-                             "lambda",
-                             mc.cores = 3,
+                             c(B_V_C_V_L_F_E[,3]),
+                            "lambda",
+                             mc.cores = 5,
                              SIMPLIFY = FALSE)
 
 ### Combine
@@ -185,7 +160,6 @@ Duration_L_PC <- do.call(
 
 FITNESS_L <- Fitness_Finder_SA(
   B_V_C_V_L_F,
-  "L",
   Duration_L_PC)
 
 write.csv(FITNESS_L , file = here(

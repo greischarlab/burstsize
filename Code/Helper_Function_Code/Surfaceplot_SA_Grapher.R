@@ -1,5 +1,7 @@
 ###Grapher and set duration 
 
+source(here("Code","Helper_Function_Code", "Grapher_vert_hor.R"))
+
 grapher_SA <- function(x_df){
   
   tmp <- split(x_df, x_df$change)
