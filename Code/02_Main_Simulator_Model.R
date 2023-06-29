@@ -16,6 +16,7 @@ source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_CUT.cpp"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 source(here("Code", "Simulator_Code", "Simulator_Main.R"))
+
 source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,
@@ -53,9 +54,11 @@ B_V_C_V_F <- subset(B_V_C_V, B_V_C_V$Establish == "Establish")
 FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC,
   c(B_V_C_V_F$B_V),
   c(B_V_C_V_F$C_V),
-  mc.cores = mc.cores_input,
+  mc.cores = 5,
   SIMPLIFY = FALSE
 )
+
+
 
 ### Combine
 FULL_MODEL_PC_DT <- do.call(rbind, FULL_MODEL_PC)

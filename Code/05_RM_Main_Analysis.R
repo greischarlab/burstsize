@@ -85,8 +85,8 @@ mer_GG <-
   ylab("Expected merozoites invading (uncommited) (R_M)") +
   scale_x_continuous(
     expand = c(0, 0),
-    breaks = seq(0, 70, 10),
-    limits = c(0, 70)
+    breaks = seq(0, 100, 10),
+    limits = c(0, 100)
   ) +
   scale_y_continuous(expand = c(0, 0)) +
   theme_bw() +
@@ -147,8 +147,8 @@ dailytp_GG <-
   ylab("Daily transmission \n probability (P_c)") +
   scale_x_continuous(
     expand = c(0, 0),
-    breaks = seq(0, 70, 10),
-    limits = c(0, 70)
+    breaks = seq(0, 100, 10),
+    limits = c(0, 100)
   ) +
   scale_y_continuous(expand = c(0, 0)) +
   theme_bw() +
@@ -205,8 +205,8 @@ cumcp_GG <-
   )) +
   scale_x_continuous(
     expand = c(0, 0),
-    breaks = seq(0, 70, 10),
-    limits = c(0, 70)
+    breaks = seq(0, 100, 10),
+    limits = c(0, 100)
   ) +
   scale_y_continuous(expand = c(0, 0)) +
   theme_bw() +
@@ -222,7 +222,7 @@ cumcp_GG <-
   )
 
 
-mer_GG / dailytp_GG / cumcp_GG + plot_annotation(tag_levels = "A")
+mer_GG / dailytp_GG / cumcp_GG + plot_annotation(tag_levels = "A") 
 
 
 

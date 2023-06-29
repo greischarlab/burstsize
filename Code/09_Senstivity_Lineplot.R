@@ -1,123 +1,277 @@
-########################################################
-### Understanding how the viable burst size combinations#
-### influence virulence, transmission, and such.     ####
-########################################################
+# HEADER --------------------------------------------
+#
+# Author: Damie Pak
+# Copyright (c) Damie Pak, 2023
+# Email:  dp495@cornell.edu
+#
+# Date: 2023-04-21
+#
+# Script Name: 01_RBC_Mortality_Analysis.R
+#
+# Script Description: This is the script that is for 
+#Figure 6 which shows how changes in the mortality rate of
+#merozoite (uM), the lambda rate, and the initial RBCS.
+#
+# Notes: 
+#
+
 
 library(here)
 
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 
-###We need the data here 
+### We need the data here and give everyone the grouping name
 
-FITNESS_MODEL <- as.data.frame(fread(here("Output","Fitness_Model",
-                                      "Fitness_MODEL_PC_FULL.csv")))
-FITNESS_MODEL$change = "Original"
-FITNESS_MODEL$grouping = "Original"
+###Original model
+FITNESS_MODEL <- as.data.frame(fread(here(
+  "Output", "Fitness_Model",
+  "Fitness_MODEL_PC_FULL.csv"
+)))
+FITNESS_MODEL$change <- 1
+FITNESS_MODEL$grouping <- "Original"
 
-FITNESS_L <- as.data.frame(fread(here("Output","Fitness_Model",
-                                      "Fitness_L.csv")))
-FITNESS_L$grouping = "lambda"
+###Blood replenishment model
+FITNESS_L <- as.data.frame(fread(here(
+  "Output", "Fitness_Model",
+  "Fitness_L.csv"
+)))
+FITNESS_L$grouping <- "lambda"
 
-FITNESS_RI <- as.data.frame(fread(here("Output","Fitness_Model",
-                                       "Fitness_RI.csv")))   
-FITNESS_RI$grouping = "RI"
+###Initial RBC model
+FITNESS_RI <- as.data.frame(fread(here(
+  "Output", "Fitness_Model",
+  "Fitness_RI.csv"
+)))
+FITNESS_RI$grouping <- "RI"
 
-FITNESS_UM <- as.data.frame(fread(here("Output","Fitness_Model",
-                                       "Fitness_UM.csv")))       
-FITNESS_UM$grouping = "UM"
+###Merozoite mortality model
+FITNESS_UM <- as.data.frame(fread(here(
+  "Output", "Fitness_Model",
+  "Fitness_UM.csv"
+)))
+FITNESS_UM$grouping <- "UM"
 
+##################
+### Day Labeler###
+##################
+Parameter_Names <- c(
+  "lambda" = "A. RBC replenishment",
+  "RI" = "B. Initial RBC",
+  "UM" = "C. Merozoite mortality rate"
+)
 
 FITNESS_ALL <- rbind(FITNESS_MODEL, FITNESS_L, FITNESS_RI, FITNESS_UM)
 FITNESS_ALL_SPLIT <- split(FITNESS_ALL, FITNESS_ALL$change)
-FITNESS_MAX <- do.call(rbind,by(FITNESS_ALL, FITNESS_ALL$change, function(x) x[which.max(x$end_fitness),],
-                                simplify = FALSE))
+FITNESS_MAX <- do.call(rbind, by(FITNESS_ALL, FITNESS_ALL$change, function(x) x[which.max(x$end_fitness), ],
+  simplify = FALSE
+))
+FITNESS_MAX$RC <- FITNESS_MAX$B_V * (1 - FITNESS_MAX$C_V)
+FITNESS_MAX$increase <- ifelse(FITNESS_MAX$RC > 3.680, "increase", "decrease")
+FITNESS_MAX$cum_trans <- ifelse(FITNESS_MAX$end_fitness > 35.03340,
+  "Fitter", "Not_Fitter"
+)
 
-FITNESS_ALL_ADDENDUM = NULL
-for (k in seq(1,nrow(FITNESS_MAX))){
-  tmp = FITNESS_MAX[k,]
-  tmp_fitness = FITNESS_ALL_SPLIT[[k]]
-  
-  updown_CV <- subset(tmp_fitness,   tmp_fitness$C_V == tmp$C_V & 
-                        tmp_fitness$status == 'success')
-  leftright_BV <- subset(tmp_fitness,   tmp_fitness$B_V == tmp$B_V & 
-                          tmp_fitness$status == 'success')
-  
-  min_CV = min(leftright_BV $C_V)
-  max_CV = max(leftright_BV $C_V)
-  
-  min_BV = min(updown_CV$B_V)
-  max_BV = max(updown_CV$B_V)
-  
-  
-  FITNESS_ALL_ADDENDUM[[k]] <- cbind.data.frame(
-    B_V = tmp$B_V,
-    C_V= tmp$C_V,
-    min_CV, max_CV, 
-   min_BV,max_BV, change = tmp$change,
-   grouping = tmp$grouping)
+########################################
+### OPTIMAL TRANSMISSION INVESTMENT #####
+########################################
+
+FITNESS_ALL_OPTIMAL_CV <- NULL
+for (k in seq(1, nrow(FITNESS_MAX))) {
+  tmp <- FITNESS_MAX[k, ]
+  tmp_fitness <- FITNESS_ALL_SPLIT[[k]]
+
+  optimal_cv <- subset(tmp_fitness, tmp_fitness$C_V == tmp$C_V &
+    tmp_fitness$status == "success")
+
+  FITNESS_ALL_OPTIMAL_CV[[k]] <- cbind.data.frame(
+    B_V = optimal_cv$B_V,
+    C_V = optimal_cv$C_V,
+    change = optimal_cv$change,
+    grouping = optimal_cv$grouping,
+    endfitness = optimal_cv$end_fitness
+  )
 }
 
+FITNESS_ALL_OPTIMAL_CV_F <- do.call(rbind, FITNESS_ALL_OPTIMAL_CV)
 
-
-
-FITNESS_ALL_ADDENDUM <- do.call(rbind, FITNESS_ALL_ADDENDUM)
-
-###SKETCHY WAY### - CHECK (WILL AUTOMATE IT LATEr)
-FITNESS_ALL_ADDENDUM$minusplus <- c('p','m','m','p','p','m','NA')
-FITNESS_ALL_MAX$minusplus <- c('p','m','m','p','p','m','NA')
-FITNESS_ALL$minusplus
-### Day Labeler
-Parameter_Names<- c(
-  'lambda' = "A. RBC replenishment",
-  "RI" = "B. Initial RBC",
-  'UM' = "C. Merozoite mortality rate"
+FITNESS_ALL_OPTIMAL_CV_1 <- subset(
+  FITNESS_ALL_OPTIMAL_CV_F,
+  FITNESS_ALL_OPTIMAL_CV_F$change != "Original"
 )
 
 
+FITNESS_ALL_OPTIMAL_CV_2 <- subset(FITNESS_ALL_OPTIMAL_CV_F, FITNESS_ALL_OPTIMAL_CV_F$C_V == 0.54 &
+  FITNESS_ALL_OPTIMAL_CV_F$change == "Original")[, c("B_V", "endfitness")]
+
+
+OPT_CV_GG <- ggplot(
+  FITNESS_ALL_OPTIMAL_CV_1,
+  aes(
+    x = B_V,
+    y = endfitness,
+    group = change,
+    color = change
+  )
+) +
+  geom_line(size = 1.2) +
+  facet_wrap(~grouping,
+    ncol = 1,
+    labeller = as_labeller(Parameter_Names)
+  ) +
+  annotate("line",
+    x = FITNESS_ALL_OPTIMAL_CV_2$B_V,
+    y = FITNESS_ALL_OPTIMAL_CV_2$endfitness,
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "#ef233c", "#118ab2",
+    "#118ab2", "#ef233c",
+    "#ef233c", "#118ab2"
+  )) +
+  xlab("Burst size") +
+  ylab("Cumulative transmission potential") +
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "off",
+    axis.text = element_text(size = 13, color = "black"),
+    axis.title = element_text(size = 14, color = "black"),
+    strip.text = element_text(size = 15)
+  )
+
+########################################
+### Optimal burst size              ####
+########################################
+FITNESS_ALL_OPTIMAL_BV <- NULL
+for (k in seq(1, nrow(FITNESS_MAX))) {
+  tmp <- FITNESS_MAX[k, ]
+  tmp_fitness <- FITNESS_ALL_SPLIT[[k]]
+
+  optimal_bv <- subset(tmp_fitness, tmp_fitness$B_V == tmp$B_V &
+    tmp_fitness$status == "success")
 
 
 
-ggplot(FITNESS_MAX[-7,],
-       aes(x = B_V, y= C_V)) + 
-  geom_point(aes(color = minusplus, 
-                                                                size = end_fitness)
-                                                           )+ 
-  geom_segment(data =  FITNESS_ALL_ADDENDUM[-7,], aes(x= B_V, xend = B_V, 
-                                                 y = min_CV, yend = max_CV, color = minusplus) )+
-  geom_segment(data =  FITNESS_ALL_ADDENDUM[-7,], aes(x= min_BV, xend = max_BV, 
-                                                 y = C_V, yend = C_V, color = minusplus) )+
-  facet_wrap(~grouping,ncol = 1, labeller = as_labeller(Parameter_Names)) + 
-  scale_size_continuous(range = c(1, 10))+
-  scale_color_manual(values = c("#3DD8EE", '#FD7E6C')) + 
-  xlab("Burst size") + 
-  ylab("Transmission investment")+
-  annotate("point", x = 8, y =0.54,size = 5, color = 'black') +
-  annotate("segment", x = 8, xend = 8, y= 0.01, yend = 0.59 ) + 
-  annotate("segment", x = 7.5, xend = 19.5, y= 0.54, yend = 0.54 ) + 
-  theme_bw() + 
-  theme(legend.position = 'none',
-        strip.background = element_blank(), 
-        axis.title = element_text(size = 14),
-        axis.text = element_text(size = 13),
-        strip.text = element_text(size = 14)) 
+  FITNESS_ALL_OPTIMAL_BV[[k]] <- cbind.data.frame(
+    B_V = optimal_bv$B_V,
+    C_V = optimal_bv$C_V,
+    change = optimal_bv$change,
+    grouping = optimal_bv$grouping,
+    endfitness = optimal_bv$end_fitness
+  )
+}
+
+FITNESS_ALL_OPTIMAL_BV_F <- do.call(rbind, FITNESS_ALL_OPTIMAL_BV)
+
+FITNESS_ALL_OPTIMAL_BV_1 <- subset(
+  FITNESS_ALL_OPTIMAL_BV_F,
+  FITNESS_ALL_OPTIMAL_BV_F$change != "Original"
+)
+
+
+FITNESS_ALL_OPTIMAL_BV_2 <- subset(
+  FITNESS_ALL_OPTIMAL_BV_F,
+  FITNESS_ALL_OPTIMAL_BV_F$B_V == 8 &
+    FITNESS_ALL_OPTIMAL_BV_F$change == "Original"
+)[, c("C_V", "endfitness")]
 
 
 
+
+OPT_BV_GG <- ggplot(
+  FITNESS_ALL_OPTIMAL_BV_1,
+  aes(
+    x = C_V,
+    y = endfitness,
+    group = change,
+    color = change
+  )
+) +
+  geom_line(size = 1.2) +
+  facet_wrap(~grouping,
+    ncol = 1,
+    labeller = as_labeller(Parameter_Names)
+  ) +
+  annotate("line",
+    x = FITNESS_ALL_OPTIMAL_BV_2$C_V,
+    y = FITNESS_ALL_OPTIMAL_BV_2$endfitness,
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "#ef233c", "#118ab2",
+    "#118ab2", "#ef233c",
+    "#ef233c", "#118ab2"
+  )) +
+  xlab("Transmission investment") +
+  ylab("Cumulative transmission potential") +
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "off",
+    axis.text = element_text(size = 13, color = "black"),
+    axis.title = element_text(size = 14, color = "black"),
+    strip.text = element_text(size = 15)
+  )
+
+
+OPT_CV_GG + OPT_BV_GG
+
+
+ggsave(here("Figures", "Raw", "Supp_Optimal_BV_CV_SA.pdf"),
+  height = 8, width = 9, units = "in"
+)
+
+########################################
+### CONSTANT TRANSMISSION INVESTMENT ####
+########################################
 FITNESS_54 <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.54 &
-                       FITNESS_ALL$change != 'Original')
+  FITNESS_ALL$change != "Original" &
+  FITNESS_ALL$status == "success")
 
-ggplot(FITNESS_54, 
-       aes( x = B_V, 
-            y = end_fitness,
-            group = change,
-            color = change)) + 
-  geom_line(size = 1.2) + 
-  facet_wrap(~grouping) 
-  
+FITNESS_54_O <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.54 &
+  FITNESS_ALL$change == "Original" &
+  FITNESS_ALL$status == "success")[, c("B_V", "end_fitness")]
 
 
+Fitness_CosntantC_Lineplot <- ggplot(
+  FITNESS_54,
+  aes(
+    x = B_V,
+    y = end_fitness,
+    group = change,
+    color = change
+  )
+) +
+  geom_line(size = 1.2) +
+  facet_wrap(~grouping,
+    ncol = 1,
+    labeller = as_labeller(Parameter_Names)
+  ) +
+  annotate("line",
+    x = FITNESS_54_O$B_V,
+    y = FITNESS_54_O$end_fitness,
+    size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "#ef233c", "#118ab2",
+    "#118ab2", "#ef233c",
+    "#ef233c", "#118ab2"
+  )) +
+  xlab("Burst size") +
+  ylab("Cumulative transmission potential") +
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "off",
+    axis.text = element_text(size = 13, color = "black"),
+    axis.title = element_text(size = 14, color = "black"),
+    strip.text = element_text(size = 15)
+  )
 
-                                   
-                                   
-                                   
+ggsave(here("Figures", "Raw", "Supp_Optimal_54_SA.pdf"),
+  height = 8, width = 5, units = "in"
+)

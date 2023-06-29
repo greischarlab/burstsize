@@ -18,8 +18,6 @@ sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 
 
 ### Burst Size Versus Transmission Investment ###
-
-
 B_V_C_V_UM_F <- B_V_C_V_Establisher("UM",0.25)
 B_V_C_V_RI_F <-  B_V_C_V_Establisher("RI",0.25)
 B_V_C_V_L_F <-  B_V_C_V_Establisher("L", 0.25)
@@ -63,13 +61,14 @@ Duration_UM_PC <- do.call(
   mclapply(FULL_MODEL_PC_UM,
            Finder_RM_SA,
            sens_var = 'UM',
-           mc.cores = 4))
+           mc.cores = 5))
 
 
 
 FITNESS_UM <- Fitness_Finder_SA(
                   B_V_C_V_UM_F,
-                  Duration_UM_PC)
+                  Duration_UM_PC,
+                  "UM")
 
 write.csv(FITNESS_UM , file = here(
   "Output", "Fitness_Model",
@@ -112,10 +111,34 @@ Duration_RI_PC <- do.call(
            sens_var = 'RI',
            mc.cores = 5))
 
+Duration_RI_PC_NA <- subset(Duration_RI_PC, is.na(Duration_RI_PC$endtime) == TRUE)
+
+FULL_MODEL_PC_RI_NA <- mcmapply(Simulator_Malaria_BC_RI_Extend ,
+                             c(Duration_RI_PC_NA$B_V),
+                             c(Duration_RI_PC_NA$C_V),
+                             c(Duration_RI_PC_NA$change),
+                             mc.cores = 5,
+                             SIMPLIFY = FALSE)
+
+
+Duration_RI_PC_NA <- do.call(
+  rbind,
+  mclapply(FULL_MODEL_PC_RI_NA ,
+           Finder_RM_SA,
+           sens_var = 'RI',
+           mc.cores = 5))
+
+
+Duration_RI_PC[is.na(Duration_RI_PC$endtime) == TRUE,]$endtime <- 
+  
+  Duration_RI_PC_NA$endtime
+
+
 
 FITNESS_RI <- Fitness_Finder_SA(
   B_V_C_V_RI_F,
-  Duration_RI_PC)
+  Duration_RI_PC,
+  "RI")
 
 write.csv(FITNESS_RI , file = here(
   "Output", "Fitness_Model",
@@ -152,15 +175,16 @@ remove(FULL_MODEL_PC_L_DT)
 
 Duration_L_PC <- do.call(
   rbind,
-  mclapply(FULL_MODEL_PC_L,
+  mclapply(FULL_MODEL_PC_lambda,
            Finder_RM_SA,
-           sens_var = 'L',
+           sens_var = 'lambda',
            mc.cores = 4))
 
 
 FITNESS_L <- Fitness_Finder_SA(
   B_V_C_V_L_F,
-  Duration_L_PC)
+  Duration_L_PC,
+  "lambda")
 
 write.csv(FITNESS_L , file = here(
   "Output", "Fitness_Model",
