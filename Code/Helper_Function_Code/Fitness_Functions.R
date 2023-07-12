@@ -69,13 +69,14 @@ Gametocyte_Fitness_EqualWeighting <- function(x, life_span){
   gam_dat <- data.frame(time = x['time'],
                         gam = x[,"G"])
   
-  
   ###If it's negative then, make it 0 just in case
-  gam_dat$gam[gam_dat$gam < 0] <- 0            
+  gam_dat$gam[gam_dat$gam < 0] <- 0        
   
-  gam_dat_trunc <- subset(gam_dat, gam_dat$time <= life_span)
+  gam_dat_func <- approxfun(gam_dat)
   
-  end_fitness <- max(cumsum(1*(PrI_PC(gam_dat_trunc$gam) * 1/10)))
+  gam_dat_trunc <-gam_dat_func(seq(1,life_span,1/10))
+  
+  end_fitness <- max(cumsum(1*(PrI_PC(gam_dat_trunc) * 1/10)))
   
   return(end_fitness)
 }

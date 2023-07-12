@@ -20,8 +20,9 @@ library(here)
 library(magrittr)
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "Fitness_Function.R"))
+source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "average_life_span_RC.R"))
+source(here("Code", "Helper_Function_Code", "Grapher_vert_hor.R"))
 
 
 ifelse(file.exists(here("Output",
@@ -45,50 +46,40 @@ FULL_MODEL_100 <- as.data.frame(fread(here("Output",
 ###1) MERGE the full_model and the fitness model,
 ###2) filter only for successful infections and 
 ###3) split them 
-FULL_MODEL_100_F <- merge(FULL_MODEL_100, FITNESS_MODEL, by =c("B_V","C_V")) %>%
-                    filter(., status == 'success') %>%
-                    split(., list(.$B_V,.$C_V),drop = TRUE)
-
+FULL_MODEL_100_F <- merge(FULL_MODEL_100, 
+                          FITNESS_MODEL, by =c("B_V","C_V")) %>%
+                           filter(., status == 'success') %>%
+                          split(., list(.$B_V,.$C_V),drop = TRUE)
+  
 
 ###Different average lifespans of the equation: DAY 5 to DAY 100, by 5 days
-average_lifespan <- c(seq(5, 100, 0.1))
+average_lifespan <- c(seq(5, 100,1))
 
-###This is for the exponential weighting
-exponential_RC <- average_life_span_RC(FULL_MODEL_100_F, 'exponential')
 ###This is for the equal weighting
-equal_RC <- average_life_span_RC(FULL_MODEL_100_F, 'equal')
-###Combine them all together
-full_RC <- rbind.data.frame(exponential_RC, equal_RC)
+equal_RC <- average_life_span_RC(FULL_MODEL_100_F, 'equal',
+                                 average_lifespan )
 
 ###Days of interest
-doi <-  c(5,25,50,75)
-doi_points <- filter(full_RC, full_RC$lifespan %in% c(5,25,50,75))
+doi <-  c(5,20,25,50,75)
+doi_points <- filter(equal_RC, equal_RC$lifespan %in% c(5,20,25,50,75))
 
-
+equal_RC_nomin <- subset(equal_RC,equal_RC$group == 'fit' &
+                           equal_RC$lifespan %in%  seq(0,50,5))
 
 ###This is the figure that makes the replicative capacity versus the 
 ###average infection length 
 
-New_Label_Weighting <- c("equal" = "Equal\nweighting",
-                         "exponential" = "Exponential\nweighting")
-
 RC_GG <- 
-  ggplot(data = full_RC, 
-         aes(x = lifespan, y= RC)) + 
-  geom_line(size = 0.8) + 
-  geom_vline(xintercept = c(5,25,50,75), 
-             linetype = 2) +
-  geom_point(data = doi_points, aes( x= lifespan, y = RC),
+  ggplot(data = subset(equal_RC,equal_RC$group != 'min'), 
+         aes(x = lifespan, y= RC, color = group, group = group))+
+  geom_line(size = 1) + 
+  geom_point(data = subset(doi_points,
+                           doi_points$group != 'min'),
+             aes( x= lifespan, y = RC),
              size = 3 ) +
-  geom_text(data = doi_points,
-             aes(x = lifespan , y = RC , 
-                 label = paste(expression(beta), "=",B_V,"\n","c =", C_V)),
-            nudge_x = 5, nudge_y = - 0.5) + 
-  facet_wrap(~id, ncol = 1, strip.position = 'right',
-             labeller = labeller(id = New_Label_Weighting),
-             scales = 'free_x') + 
+  scale_color_manual(values = c('fit' = 'black', 'max'='#50de66'))+
   scale_x_continuous(limits=c(0,100)) +
-  xlab("Average infection length") + 
+  xlab("Total infection length") + 
   ylab(expression(paste("Replicative capacity (","(1-c)", beta,")")))+ 
   theme_classic() + 
   theme(
@@ -97,8 +88,89 @@ RC_GG <-
         strip.background =  element_blank(),
         strip.text = element_text(size = 16),
         strip.text.y.right = element_text(angle = 0),
-        panel.spacing = unit(1.5, "lines"))
+        panel.spacing = unit(1.5, "lines"), 
+        legend.position = 'none')
 
 
-ggsave(here("Figures", "Raw", "Standard_Duration_Lineplots.pdf"),
-       width = 10, height = 8, units= 'in')
+
+###
+######################################################
+### Makes Figure 2, which is the surface plot of the##
+### acute phase duration and the fitness
+####################################################
+
+
+###Produces the mortality and non-establishing infection lines
+horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC)
+
+
+traj_plot_GG <- 
+  ggplot(equal_RC_nomin, 
+         aes(x = B_V, y = C_V, 
+        color = as.factor(lifespan))) +
+  geom_text(aes(x= B_V+1.5, y= C_V, label = lifespan))+
+  geom_point(size = 3.0)+
+  geom_path(size=1,lineend = "round", group =1) +
+  geom_raster(
+    data = subset(
+      Fitness_MODEL_PC_FULL,
+      Fitness_MODEL_PC_FULL$status ==
+        "Fail"
+    ),
+    aes(x = B_V, y = C_V), fill = "#d1dbe8",
+    inherit.aes = FALSE
+    
+  ) +
+  geom_raster(
+    data = subset(
+      Fitness_MODEL_PC_FULL,
+      Fitness_MODEL_PC_FULL$status ==
+        "mort"
+    ),
+    aes(x = B_V, y = C_V), fill = "black",
+    inherit.aes = FALSE
+    
+  )+
+  scale_color_viridis(option='rocket',discrete = TRUE,)+
+  new_scale_color() +
+ 
+  geom_segment(
+    data = horizontal_vert_df,
+    aes(
+      x = x, xend = xend,
+      y = y, yend = yend,
+    color = id), size = 0.5,
+    
+    lineend = "round",
+    inherit.aes = FALSE
+  )+
+  scale_color_manual(
+    values = c(
+      "fail" = "black",
+      "mort" = "#b8fcd5"
+    ),
+    guide = "none"
+  )+
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
+  ylab("Transmission investment (c)") +
+
+scale_x_continuous(limits=c(1,51),expand=c(0,0))+ 
+  scale_y_continuous(limits=c(.01, 1),expand=c(0,0))+
+ theme(panel.background=element_rect(fill ='#e3e0da'),
+       panel.border = element_rect(color = 'black', fill = NA, size =1),
+       panel.grid  = element_blank(),
+     
+         text = element_text(size = 14, color = "black"),
+         axis.text = element_text(size = 14, color = "black"),
+         axis.title = element_text(size = 15, color = "black"),
+         legend.position = "none"
+       ) 
+
+
+traj_plot_GG +
+  RC_GG +  plot_annotation(tag_levels = "A")
+
+
+ggsave(here("Figures", "Raw", "Standard_Duration_Plots.pdf"),
+       height = 4, width = 10,
+       units = 'in')
