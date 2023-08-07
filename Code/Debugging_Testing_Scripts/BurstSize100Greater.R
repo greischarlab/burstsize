@@ -19,17 +19,17 @@ source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,
-  dir.create("Output/Full_Model"),
-  "Directory exists already"
+       dir.create("Output/Full_Model"),
+       "Directory exists already"
 )
 
 ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
-  dir.create("Output/Fitness_Model"),
-  "Directory exists already"
+       dir.create("Output/Fitness_Model"),
+       "Directory exists already"
 )
 
 ### Burst Size Versus Transmission Investment ###
-B_V <- seq(1, 50, 0.5) # Burst size
+B_V <- seq(1, 100, 0.5) # Burst size
 C_V <- seq(.01, 1, 0.01) # Transmission investment
 B_V_C_V <- expand.grid(B_V = B_V, C_V = C_V) # Different combinations
 
@@ -45,46 +45,43 @@ initial_RM_modifier <- 1.5
 RM_limit_1 <- initial_RM_modifier * ((p_val * R_val) + mu_M) / (p_val * R_val)
 
 B_V_C_V$Establish <- ifelse((1 - B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
-  "Establish", "Fail"
+                            "Establish", "Fail"
 )
 
 ### Simulate infections that are successful
 B_V_C_V_F <- subset(B_V_C_V, B_V_C_V$Establish == "Establish")
 
-Simulating_Main_Function
-
-
 ### These infections are successful OR lead to host mortality
-FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC,
-  c(B_V_C_V_F$B_V),
-  c(B_V_C_V_F$C_V),
-  mc.cores = 5,
-  SIMPLIFY = FALSE
+FULL_MODEL_PC_2 <- mcmapply(Simulator_Malaria_BC,
+                          c(B_V_C_V_F$B_V),
+                          c(B_V_C_V_F$C_V),
+                          mc.cores = 5,
+                          SIMPLIFY = FALSE
 )
 
 ### Combine
-FULL_MODEL_PC_DT <- do.call(rbind, FULL_MODEL_PC)
+FULL_MODEL_PC_DT_2 <- do.call(rbind, FULL_MODEL_PC_2 )
 
 ### Write into a CSV
-write.csv(FULL_MODEL_PC_DT, file = here(
+write.csv(FULL_MODEL_PC_DT_2, file = here(
   "Output", "Full_Model",
-  "FULL_MODEL_PC_DT.csv"
+  "FULL_MODEL_PC_DT_2.csv"
 ))
 
-remove(FULL_MODEL_PC_DT)
+remove(FULL_MODEL_PC_DT_2)
 ######################################################
 ### This is the duration of the acute phase (RM WAY)#
 ######################################################
 
 Duration_Initial_PC <- 
   do.call(
-  rbind,
-  mclapply(FULL_MODEL_PC,
-    Finder_RM,
-    mu_M_c = 48,
-    mc.cores = 2
+    rbind,
+    mclapply(FULL_MODEL_PC_2,
+             Finder_RM,
+             mu_M_c = 48,
+             mc.cores = 2
+    )
   )
-)
 
 ### Assign the burst size and transmission investment
 Duration_Initial_PC$B_V <- B_V_C_V_F$B_V
@@ -125,29 +122,29 @@ Duration_Initial_PC_SUCCESS <- subset(
 ### combination that leads to successful infection that does not induce
 ### host mortality
 
-Fitness_MODEL_PC <- mcmapply(Simulator_MalariaPC_DDE_BC_Cut,
-  c(Duration_Initial_PC_SUCCESS$B_V),
-  c(Duration_Initial_PC_SUCCESS$C_V),
-  c(Duration_Initial_PC_SUCCESS$endtime),
-  mc.cores = 5,
-  SIMPLIFY = FALSE
+Fitness_MODEL_PC_2 <- mcmapply(Simulator_MalariaPC_DDE_BC_Cut,
+                             c(Duration_Initial_PC_SUCCESS$B_V),
+                             c(Duration_Initial_PC_SUCCESS$C_V),
+                             c(Duration_Initial_PC_SUCCESS$endtime),
+                             mc.cores = 5,
+                             SIMPLIFY = FALSE
 )
 
 ### Now we know what the fitness is
 Duration_Initial_PC_SUCCESS$end_fitness <-
-  unlist(lapply(Fitness_MODEL_PC, Gametocyte_Fitness))
+  unlist(lapply(Fitness_MODEL_PC_2, Gametocyte_Fitness))
 
 ### These are the fitness model data.frame that should work
-Fitness_MODEL_PC_FULL <- rbind.data.frame(
+Fitness_MODEL_PC_FULL_2 <- rbind.data.frame(
   Duration_Initial_PC_SUCCESS,
   Duration_Initial_PC_FAIL,
   Duration_Initial_PC_MORT
 )
 
 ### This is saved
-write.csv(Fitness_MODEL_PC_FULL , file = here(
+write.csv(Fitness_MODEL_PC_FULL_2 , file = here(
   "Output",
   "Fitness_Model",
-  "Fitness_MODEL_PC_FULL.csv"
+  "Fitness_MODEL_PC_FULL_2.csv"
 ))
 

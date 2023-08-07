@@ -20,10 +20,9 @@ library(here)
 library(magrittr)
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "average_life_span_RC.R"))
 source(here("Code", "Helper_Function_Code", "Grapher_vert_hor.R"))
-
 
 ifelse(file.exists(here("Output",
                         "Full_Model",
@@ -32,8 +31,7 @@ ifelse(file.exists(here("Output",
                         source(here("Code","Helper_Function_Code",
                                     "SD_100Day_Infection_Creator.R")))
        
-
-FITNESS_MODEL <- 
+Fitness_MODEL_PC_FULL <- 
   as.data.frame(fread(here(
   "Output", "Fitness_Model",
   "Fitness_MODEL_PC_FULL.csv"
@@ -47,7 +45,7 @@ FULL_MODEL_100 <- as.data.frame(fread(here("Output",
 ###2) filter only for successful infections and 
 ###3) split them 
 FULL_MODEL_100_F <- merge(FULL_MODEL_100, 
-                          FITNESS_MODEL, by =c("B_V","C_V")) %>%
+                          Fitness_MODEL_PC_FULL, by =c("B_V","C_V")) %>%
                            filter(., status == 'success') %>%
                           split(., list(.$B_V,.$C_V),drop = TRUE)
   
@@ -56,7 +54,7 @@ FULL_MODEL_100_F <- merge(FULL_MODEL_100,
 average_lifespan <- c(seq(5, 100,1))
 
 ###This is for the equal weighting
-equal_RC <- average_life_span_RC(FULL_MODEL_100_F, 'equal',
+equal_RC <- average_life_span_RC(FULL_MODEL_100_F, 
                                  average_lifespan )
 
 ###Days of interest
@@ -64,20 +62,20 @@ doi <-  c(5,20,25,50,75)
 doi_points <- filter(equal_RC, equal_RC$lifespan %in% c(5,20,25,50,75))
 
 equal_RC_nomin <- subset(equal_RC,equal_RC$group == 'fit' &
-                           equal_RC$lifespan %in%  seq(0,50,5))
+                           equal_RC$lifespan %in% c(5,20,25,30,40,50))
 
 ###This is the figure that makes the replicative capacity versus the 
 ###average infection length 
 
 RC_GG <- 
-  ggplot(data = subset(equal_RC,equal_RC$group != 'min'), 
+  ggplot(data = equal_RC,
          aes(x = lifespan, y= RC, color = group, group = group))+
   geom_line(size = 1) + 
   geom_point(data = subset(doi_points,
                            doi_points$group != 'min'),
              aes( x= lifespan, y = RC),
              size = 3 ) +
-  scale_color_manual(values = c('fit' = 'black', 'max'='#50de66'))+
+  scale_color_manual(values = c('fit' = 'black', 'max'='green'))+
   scale_x_continuous(limits=c(0,100)) +
   xlab("Total infection length") + 
   ylab(expression(paste("Replicative capacity (","(1-c)", beta,")")))+ 
@@ -101,16 +99,15 @@ RC_GG <-
 
 
 ###Produces the mortality and non-establishing infection lines
-horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC)
+horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC_FULL)
 
 
 traj_plot_GG <- 
   ggplot(equal_RC_nomin, 
          aes(x = B_V, y = C_V, 
         color = as.factor(lifespan))) +
-  geom_text(aes(x= B_V+1.5, y= C_V, label = lifespan))+
+  geom_text(aes(x= B_V, y= C_V, label = lifespan))+
   geom_point(size = 3.0)+
-  geom_path(size=1,lineend = "round", group =1) +
   geom_raster(
     data = subset(
       Fitness_MODEL_PC_FULL,
@@ -131,7 +128,9 @@ traj_plot_GG <-
     inherit.aes = FALSE
     
   )+
-  scale_color_viridis(option='rocket',discrete = TRUE,)+
+  geom_path(size=1,lineend = "round", group =1) +
+  
+  scale_color_viridis(option='plasma',discrete = TRUE,)+
   new_scale_color() +
  
   geom_segment(
@@ -153,9 +152,6 @@ traj_plot_GG <-
   )+
   xlab(expression(paste("Burst size", "( ", beta, ")"))) +
   ylab("Transmission investment (c)") +
-
-scale_x_continuous(limits=c(1,51),expand=c(0,0))+ 
-  scale_y_continuous(limits=c(.01, 1),expand=c(0,0))+
  theme(panel.background=element_rect(fill ='#e3e0da'),
        panel.border = element_rect(color = 'black', fill = NA, size =1),
        panel.grid  = element_blank(),
@@ -164,13 +160,14 @@ scale_x_continuous(limits=c(1,51),expand=c(0,0))+
          axis.text = element_text(size = 14, color = "black"),
          axis.title = element_text(size = 15, color = "black"),
          legend.position = "none"
-       ) 
+       ) +
+  coord_cartesian(xlim =c(20,50), ylim = c(0.7,1))
 
 
 traj_plot_GG +
   RC_GG +  plot_annotation(tag_levels = "A")
 
 
-ggsave(here("Figures", "Raw", "Standard_Duration_Plots.pdf"),
+ggsave(here("Figures", "Raw", "Standard_Duration_Plots_Alt.pdf"),
        height = 4, width = 10,
        units = 'in')

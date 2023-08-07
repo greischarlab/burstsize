@@ -5,7 +5,7 @@
 ### Input: Burst size and transmission investment##
 ### Output: deSolve class                        ##
 ##################################################
-Simulator_Malaria_BC_ALTERNATIVE <- function(B_V, C_V) {
+Simulator_Malaria_BC <- function(B_V, C_V) {
   parameters_n <-
     c(
       lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
@@ -22,12 +22,12 @@ Simulator_Malaria_BC_ALTERNATIVE <- function(B_V, C_V) {
       n1 = 100, # shape parameter controlling the variability in asexual devleopment
       n2 = 100 # shape parameter controlling the variability in sexual development
     )
-  
+
   ### The number of subcompartments for infected rbc(n1)
   n1 <- parameters_n["n1"]
   ### The number of subcompartments for immature gametocytes
   n2 <- parameters_n["n2"]
-  
+
   ### The initial numbers
   inits_n <- c(
     R = 8500000, # RBC
@@ -36,19 +36,21 @@ Simulator_Malaria_BC_ALTERNATIVE <- function(B_V, C_V) {
     IG = rep(0, n2), # immature gametocytes
     G = 0
   ) # gametocytes
-  
+
   ### We just want to figure out when the peak infected RBC is at.
-  times <- seq(0, 100, by = 1 / 10)
-  
-  
+  times <- seq(0, 200, by = 1 / 10)
+
+
   out_DDE <- ode(
     y = inits_n,
     times = times,
     func = Erlang_Malaria,
     parms = parameters_n
   )
+  return(data.frame(out_DDE, B_V = B_V, C_V = C_V))
   
-  return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V))
+ 
+  # return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V))
 }
 
 
@@ -75,28 +77,29 @@ Simulator_MalariaPC_DDE_BC_Cut <- function(B_V, C_V, endtime) {
       n2 = 100, # shape parameter controlling the variability in sexual development
       endtime = endtime # When the asexual replication end
     )
-  
+
   ### The number of subcompartments for infected rbc(n1)
   n1 <- parameters_n["n1"]
   ### The number of subcompartments for immature gametocytes
   n2 <- parameters_n["n2"]
-  
+
   ### The initial numbers
   inits_n <- c(
-    R = 8500000,
+      R = 8500000,
     I = rep(43859.65 / n1, n1),
     M = 0,
     IG = rep(0, n2),
     G = 0
   )
-  
+
   times <- seq(0, 120, by = 1 / 10)
-  
+
   out_DDE <- ode(
     y = inits_n, times = times,
     func = Erlang_Malaria_Cut,
     parms = parameters_n
   )
+  return(data.frame(out_DDE, B_V = B_V, C_V = C_V))
   
-  return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V))
+  #return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V))
 }

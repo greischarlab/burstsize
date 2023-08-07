@@ -25,7 +25,7 @@ library(here)
 
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "Virulence_Transmission_BurstSize.R"))
 source(here("Code","Simulator_Code", "Simulator_Main_Gflux.R"))
 ###

@@ -34,6 +34,13 @@ Fitness_MODEL_PC_FULL <- read.csv(here(
 ###Produces the mortality and non-establishing infection lines
 horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC_FULL)
 
+###Find the optimum_point-
+optimum_strategy <- Fitness_MODEL_PC_FULL[which.max(Fitness_MODEL_PC_FULL$end_fitness),]
+
+###Find the longest point 
+longest_strategy <- Fitness_MODEL_PC_FULL[which.max(Fitness_MODEL_PC_FULL$endtime),]
+
+
 ########################################################################
 ### The surfaceplot describing the cumulative transmission potential (days)##
 ########################################################################
@@ -86,20 +93,20 @@ GG_Fitness_Cut_PC <-
     axis.title = element_text(size = 14, color = "black"),
     legend.position = "top"
   ) +
-  annotate("point",
-    x = 8, y = 0.59, shape = 21, size = 2, col = "black",
-    stroke = 1
-  ) +
-  annotate("point",
-    x = 8, y = 0.54, shape = 21, size = 2, col = "#00ae97",
-    stroke = 1
-  ) +
-  annotate("segment",
-    x = 8, xend = 8, y = 0.01, yend = 0.54, col = "#00ae97",
+  geom_point(data = optimum_strategy ,
+             aes( x = B_V, y= C_V),
+             color = '#FF116B', size = 2)+
+  geom_segment(
+    data = optimum_strategy,
+    aes(
+    x = B_V, xend = B_V, y = 0.01, yend = C_V)
+    , col = "#FF116B",
     linetype = 2) +
-  annotate("segment",
-           x = 1, xend = 8, y = 0.54, yend = 0.54, col = "#00ae97",
-           linetype = 2)  +
+    geom_segment(data = optimum_strategy ,
+      aes(
+      x =1, xend = B_V, y = C_V, yend = C_V), col = "#FF116B",
+      linetype = 2) +
+ 
   annotate("text",
     x = 8, y = 0.93, label = "Unestablished \ninfection",
     size = 5
@@ -111,7 +118,7 @@ GG_Fitness_Cut_PC <-
 GG_Fitness_Cut_PC
 
 ggsave(here("Figures", "Raw", "02_Fitness_SurfacePlot.pdf"),
-  width = 8, height = 8, unit = "in"
+  width = 8, height = 7.5, unit = "in"
 )
 
 
@@ -156,13 +163,14 @@ GG_Duration_Main <-
     ),
     guide = "none"
   ) +
-  scale_fill_distiller(
-    name = "Acute phase \n duration (days)",
-    type = "seq",
-    direction = -1,
-    palette = "Greys",
-    na.value = "black"
-  ) +
+  scale_fill_viridis(option = 'turbo')+
+#  scale_fill_distiller(
+#    name = "Acute phase \n duration (days)",
+#    type = "seq",
+#    direction = -1,
+#    palette = "Greys",
+#    na.value = "black"
+#  ) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   xlab(expression(paste("Burst size", "( ", beta, ")"))) +
@@ -173,23 +181,30 @@ GG_Duration_Main <-
     axis.title = element_text(size = 15, color = "black"),
     legend.position = "top"
   ) +
-  annotate("point",
-           x = 8, y = 0.59, shape = 21, size = 2, col = "black",
-           stroke = 1
+  geom_point(data = longest_strategy ,
+             aes( x = B_V, y= C_V),
+             color = 'black', size = 2)+
+  geom_segment(
+    data = longest_strategy,
+    aes(
+      x = B_V, xend = B_V, y = 0.01, yend = C_V)
+    , col = "black",
+    linetype = 2) +
+  geom_segment(data = longest_strategy ,
+               aes(
+                 x =1, xend = B_V, y = C_V, yend = C_V), col = "black",
+               linetype = 2) +
+  annotate("text",
+           x = 8, y = 0.93, label = "Unestablished \ninfection",
+           size = 5
   ) +
-  annotate("point",
-           x = 8, y = 0.54, shape = 21, size = 2, col = "#00ae97",
-           stroke = 1
-  ) +
-  annotate("segment",
-           x = 8, xend = 8, y = 0.01, yend = 0.54, col = "#00ae97",
-           linetype = 2) +
-  annotate("segment",
-           x = 1, xend = 8, y = 0.54, yend = 0.54, col = "#00ae97",
-           linetype = 2)  
+  annotate("text",
+           x = 45, y = 0.1, label = "Host \nMortality",
+           size = 5, color = "#b8fcd5"
+  )
 
 GG_Duration_Main
 
-ggsave(here("Figures", "SUPP_Duration_SurfacePlot.pdf"),
-       width = 6, height = 6, unit = "in"
+ggsave(here("Figures","Raw", "SUPP_Duration_SurfacePlot.pdf"),
+       width = 8, height = 7.5, unit = "in"
 )

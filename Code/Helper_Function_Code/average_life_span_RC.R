@@ -1,20 +1,15 @@
-average_life_span_RC <- function(full_split, weighting_var,lifespan) {
-  
-  Weighting_Function <-
-    switch(weighting_var,
-      "equal" = Gametocyte_Fitness_EqualWeighting,
-      "exponential" = Gametocyte_Fitness_LXMX)
-
+average_life_span_RC <- function(full_split, lifespan) {
+   
   full_lifespan <- NULL
-
-  for (k in seq(1, length(lifespan))) {
+    for (k in seq(1, length(lifespan))) {
     lifespan_interest <- lifespan[[k]]
-
+    
+    ###
     gam_lxmx <- do.call(
       rbind.data.frame,
       lapply(
         full_split,
-        Weighting_Function,
+        Gametocyte_Fitness_EqualWeighting  ,
         lifespan_interest
       )
     )
@@ -34,7 +29,8 @@ average_life_span_RC <- function(full_split, weighting_var,lifespan) {
       )
     )
 
-    tmp_fit <- gam_lxmx[which.max(round(gam_lxmx$end_fitness,4)), ]
+    ###Replicative capacity for the best strategy
+    tmp_fit <- gam_lxmx[which.max(round(gam_lxmx$end_fitness,3)), ]
     tmp_fit$RC <- tmp_fit$B_V * (1 - tmp_fit$C_V)
     tmp_fit$lifespan <- lifespan_interest
     tmp_fit$group <- 'fit'
@@ -48,13 +44,8 @@ average_life_span_RC <- function(full_split, weighting_var,lifespan) {
     tmp_max$lifespan <- lifespan_interest
     tmp_max$group <- 'max'
      
-    tmp_min <-  fixed_optimal_CV_df[which.min(fixed_optimal_CV_df$B_V),]
-    tmp_min$RC <-  tmp_min$B_V * (1 - tmp_min$C_V)
-    tmp_min$lifespan <- lifespan_interest
-    tmp_min$group <- 'min'
-      
      
-    tmp_all <- rbind(tmp_fit, tmp_max, tmp_min)
+    tmp_all <- rbind(tmp_fit, tmp_max)
     
    
     

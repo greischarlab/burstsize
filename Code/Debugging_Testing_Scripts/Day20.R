@@ -1,7 +1,7 @@
 
 C_V <- seq(.01, 1, 0.01)
 
-FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC_ALTERNATIVE,
+FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC,
                           10,
                           C_V,
                           mc.cores = 5,
@@ -11,7 +11,7 @@ FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC_ALTERNATIVE,
 tryit <- Surface_Plot_Standard_Duration(FULL_MODEL_PC,20)
 
 plot(tryit$C_V, tryit$end_fitness, xlab = "Transmission investment",
-ylab="End fitness at Day 20", main = 'p = 4.0e-6, I = 43859.65')
+ylab="End fitness at Day 20", main = 'p = 4.0e-6, I = 43859.65',type='l')
 abline(v = 0.42)
 
 Duration_Initial_PC <- 

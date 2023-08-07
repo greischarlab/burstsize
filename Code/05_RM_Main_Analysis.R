@@ -2,8 +2,8 @@ library(here)
 
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "Fitness_Functions.R"))
-source(here("Code", "Helper_Function_Code", "RM_Function.R"))
+source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "04_RM_Function.R"))
 
 ###
 
@@ -19,20 +19,34 @@ Fitness_MODEL_PC_FULL <- as.data.frame(fread(here(
 
 # R_M#
 
-rate_PMR_dataframe <- rate_PMR_data(
+rate_PMR_dataframe1 <- rate_PMR_data(
   FULL_MODEL_PC_DT,
   Fitness_MODEL_PC_FULL,
-  c(7.5, 8, 9.0),
-  0.54,
+  c(33,34,35),
+  c(0.89),
   48
 )
 
-end_points <- rate_PMR_dataframe[[2]]
+rate_PMR_dataframe2 <- rate_PMR_data(
+  FULL_MODEL_PC_DT,
+  Fitness_MODEL_PC_FULL,
+  c(32 ),
+  c(0.88),
+  48
+)
+
+rate_PMR_dataframe <- rbind(rate_PMR_dataframe1[[1]])
+                            #rate_PMR_dataframe2[[1]]
+
+end_points1 <- rate_PMR_dataframe1[[2]]
+end_points2 <- rate_PMR_dataframe2[[2]]
+
+end_points <- rbind(end_points1)#end_points2)
 
 ### Expected merozoites
 mer_GG <-
   ggplot(
-    rate_PMR_dataframe[[1]],
+    rate_PMR_dataframe,
     aes(
       x = time,
       y = rate,
@@ -60,7 +74,7 @@ mer_GG <-
     aes(
       x = PMR_root,
       xend = PMR_root,
-      y = 0.8,
+      y = 0.7,
       yend = 1,
       color = as.factor(B_V)
     ),
@@ -68,27 +82,25 @@ mer_GG <-
   ) +
   scale_color_manual(
     values = c(
-      "#3DD8EE",
       "black",
+      "#3DD8EE",
       "#FD7E6C"
     ),
     name = "Burst size"
   ) +
   scale_fill_manual(
     values = c(
-      "#3DD8EE",
       "black",
+      "#3DD8EE",
       "#FD7E6C"
     )
   ) +
   xlab("Days post-infection") +
   ylab("Expected merozoites invading (uncommited) (R_M)") +
   scale_x_continuous(
-    expand = c(0, 0),
     breaks = seq(0, 100, 10),
     limits = c(0, 100)
   ) +
-  scale_y_continuous(expand = c(0, 0)) +
   theme_bw() +
   theme(
     panel.grid.major = element_blank(),
@@ -104,7 +116,7 @@ mer_GG <-
 
 dailytp_GG <-
   ggplot(
-    rate_PMR_dataframe[[1]],
+    rate_PMR_dataframe,
     aes(
       x = time, y = Daily_Trans_Prob,
       fill = as.factor(B_V),
@@ -167,7 +179,7 @@ dailytp_GG <-
 ### CUMULATIVE TRANSMISSION POTENTIAL
 cumcp_GG <-
   ggplot(
-    rate_PMR_dataframe[[1]],
+    rate_PMR_dataframe,
     aes(
       x = time, y = Cum_Trans_Potential,
       fill = as.factor(B_V),

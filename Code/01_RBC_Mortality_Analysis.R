@@ -4,13 +4,15 @@
 # Copyright (c) Damie Pak, 2023
 # Email:  dp495@cornell.edu
 #
-# Date: 2023-04-21
+# Date: July 12, 2023
 #
 # Script Name: 01_RBC_Mortality_Analysis.R
 #
 # Script Description: This is the script that analyzes the 
-# mouse RBC time series and we use it to determine the mortality
-#threshold. We then use use the figure for a schematic in Figure 2
+# mouse RBC time series. We use it to determine the mortality
+#threshold. This mortality threshold is crucial for all 
+#future analysis as it 
+#We then use use the figure for a schematic in Figure 2
 #and we vary the mortality threshold for a supp figure. 
 #
 # Notes: 
