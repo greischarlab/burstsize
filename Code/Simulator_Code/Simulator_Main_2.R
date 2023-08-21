@@ -42,7 +42,7 @@ Simulator_Malaria_BC <- function(B_V, C_V, initialvalue) {
   inits_n <-
     c(
     R = 8500000, # RBC
-    I = rep(initlalvalue/ n1, n1), # Infected RBC- note the uniform distribution
+    I = rep(initialvalue/ n1, n1), # Infected RBC- note the uniform distribution
     M = 0, # merozoite
     IG = rep(0, n2), # immature gametocytes
     G = 0
@@ -62,6 +62,7 @@ Simulator_Malaria_BC <- function(B_V, C_V, initialvalue) {
  return(data.frame(out_DDE[, c("time", "R", "G")], 
                    B_V = B_V, 
                    C_V = C_V,
+                   initialvalue = initialvalue,
                    infection_length = 
                    ifelse(!is.null(attributes(out_DDE)$troot),
                           attributes(out_DDE)$troot,

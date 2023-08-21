@@ -28,50 +28,12 @@ ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
   "Directory exists already"
 )
 
-### Burst Size Versus Transmission Investment ###
-B_V <- seq(1, 50, 0.5) # Burst size
-C_V <- seq(.01, 1, 0.01) # Transmission investment
-B_V_C_V <- expand.grid(B_V = B_V, C_V = C_V) # Different combinations
 
-### I am able to figure out which of the burst and transmission
-### are unable to establish the infection so that I can exclude from
-### simulation (the acute time is set to 0 and transmission potential is set to 0)
-###1.5 seems to work?
-
-p_val <- 4.0e-6 
-mu_M <- 48
-R_val <- 8500000
-initial_RM_modifier <- 1.5
-RM_limit_1 <- initial_RM_modifier * ((p_val * R_val) + mu_M) / (p_val * R_val)
-
-B_V_C_V$Establish <- ifelse((1 - B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
-  "Establish", "Fail"
-)
-
-### Simulate infections that are successful
-B_V_C_V_F <- subset(B_V_C_V, B_V_C_V$Establish == "Establish")
-
-Simulating_Main_Function
+FULL_MODEL_SUPP_SmallInoc <- FULL_MODEL_SIMULATING_Duration(43.58965) 
+FULL_MODEL_MedINoc <- FULL_MODEL_SIMULATING_Duration(4358.965)
+FULL_MODEL_SUPP_HighInoc <-FULL_MODEL_SIMULATING_Duration(43589.65)
 
 
-### These infections are successful OR lead to host mortality
-FULL_MODEL_PC <- mcmapply(Simulator_Malaria_BC,
-  c(B_V_C_V_F$B_V),
-  c(B_V_C_V_F$C_V),
-  mc.cores = 5,
-  SIMPLIFY = FALSE
-)
-
-### Combine
-FULL_MODEL_PC_DT <- do.call(rbind, FULL_MODEL_PC)
-
-### Write into a CSV
-write.csv(FULL_MODEL_PC_DT, file = here(
-  "Output", "Full_Model",
-  "FULL_MODEL_PC_DT.csv"
-))
-
-remove(FULL_MODEL_PC_DT)
 ######################################################
 ### This is the duration of the acute phase (RM WAY)#
 ######################################################
