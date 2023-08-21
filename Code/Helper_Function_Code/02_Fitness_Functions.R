@@ -55,8 +55,8 @@ Finder_RM <- function(x_list, mu_M_c) {
     ###If it's a numeric value, that means it kills the host.
     infection_length <- unique(x_list$infection_length)
   
-    ###If the infection_length is NA...
-    if(is.null(infection_length) == FALSE){
+    ###If the infection_length is NA.
+    if(is.na(infection_length) == FALSE){
     
       ###Look at the gametocyte time series 
       ###Calculating the fitness
@@ -70,21 +70,18 @@ Finder_RM <- function(x_list, mu_M_c) {
       ###The time...
       G_TS_Function <- approxfun(G_TS)
       
-      G_TS_Function(seq(0,infection_length, 1/10))
-      
+
       truncate_G_TS <- G_TS_Function(seq(0,infection_length, 1/10))
       
       end_fitness_mort <-  sum(PrI_PC(truncate_G_TS) * 1/10)
       
-      return(data.frame(
+      df<- data.frame(
         endtime = infection_length,
         up_down = "up" ,
         end_fitness = end_fitness_mort, 
-        status = 'mort'))
+        status = 'mort')
       
-    }
-    else
-      {
+      }else{
     
      p =  4.0e-6
      unique_B_V <- unique(x_list$B_V)
@@ -105,14 +102,16 @@ Finder_RM <- function(x_list, mu_M_c) {
                             RM_time_df$rate >= 1)[1,'time']
       
     
-    return(data.frame(
+    df <- data.frame(
       endtime =  end_time,
       up_down =  'up',
       end_fitness = NA,
-      status = 'success'))
+      status = 'success')
     
     
-    }
+      }
+    
+    return(df)
 }
  
 

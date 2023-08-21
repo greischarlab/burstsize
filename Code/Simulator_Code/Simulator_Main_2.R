@@ -49,7 +49,7 @@ Simulator_Malaria_BC <- function(B_V, C_V, initialvalue) {
   ) # gametocytes
   
   ### We just want to figure out when the peak infected RBC is at.
-  times <- seq(0, 100, by = 1 / 10)
+  times <- seq(0, 200, by = 1 / 10)
   
   
   out_DDE <- ode(
@@ -109,7 +109,7 @@ Simulator_MalariaPC_DDE_BC_Cut <- function(B_V, C_V, initialvalue, endtime) {
     G = 0
   )
   
-  times <- seq(0, 120, by = 1 / 10)
+  times <- seq(0, 250, by = 1 / 10)
   
   out_DDE <- ode(
     y = inits_n, times = times,

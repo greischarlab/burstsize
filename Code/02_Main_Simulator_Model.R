@@ -29,87 +29,9 @@ ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
 )
 
 
-FULL_MODEL_SUPP_SmallInoc <- FULL_MODEL_SIMULATING_Duration(43.58965) 
-FULL_MODEL_MedINoc <- FULL_MODEL_SIMULATING_Duration(4358.965)
-FULL_MODEL_SUPP_HighInoc <-FULL_MODEL_SIMULATING_Duration(43589.65)
+FULL_MODEL_SUPP_SmallInoc <- FULL_MODEL_SIMULATING_Duration(43.58965, 48) 
+FULL_MODEL_MedINoc <- FULL_MODEL_SIMULATING_Duration(4358.965,48)
+FULL_MODEL_SUPP_HighInoc <-FULL_MODEL_SIMULATING_Duration(43589.65, 48)
 
 
-######################################################
-### This is the duration of the acute phase (RM WAY)#
-######################################################
-
-Duration_Initial_PC <- 
-  do.call(
-  rbind,
-  mclapply(FULL_MODEL_PC,
-    Finder_RM,
-    mu_M_c = 48,
-    mc.cores = 2
-  )
-)
-
-### Assign the burst size and transmission investment
-Duration_Initial_PC$B_V <- B_V_C_V_F$B_V
-Duration_Initial_PC$C_V <- B_V_C_V_F$C_V
-
-
-### I know which B_V/C_V combos would lead to failed infections so,
-### I create a data.frame for them
-Failed_B_V_C_V <- subset(B_V_C_V, B_V_C_V$Establish == "Fail")
-
-Duration_Initial_PC_FAIL <-
-  data.frame(
-    endtime = 0,
-    up_down = 0,
-    end_fitness = 0,
-    status = "Fail",
-    B_V = Failed_B_V_C_V$B_V,
-    C_V = Failed_B_V_C_V$C_V
-  )
-
-
-### These are the B_V/C_V that would lead to mortality,
-### This means that we know the end time (point of death) and the
-### cumulative transmission potential
-Duration_Initial_PC_MORT <- subset(
-  Duration_Initial_PC,
-  Duration_Initial_PC$status != "success"
-)
-
-
-Duration_Initial_PC_SUCCESS <- subset(
-  Duration_Initial_PC,
-  Duration_Initial_PC$status == "success"
-)
-
-
-### Only run the function for the burst size and transmission investment
-### combination that leads to successful infection that does not induce
-### host mortality
-
-Fitness_MODEL_PC <- mcmapply(Simulator_MalariaPC_DDE_BC_Cut,
-  c(Duration_Initial_PC_SUCCESS$B_V),
-  c(Duration_Initial_PC_SUCCESS$C_V),
-  c(Duration_Initial_PC_SUCCESS$endtime),
-  mc.cores = 5,
-  SIMPLIFY = FALSE
-)
-
-### Now we know what the fitness is
-Duration_Initial_PC_SUCCESS$end_fitness <-
-  unlist(lapply(Fitness_MODEL_PC, Gametocyte_Fitness))
-
-### These are the fitness model data.frame that should work
-Fitness_MODEL_PC_FULL <- rbind.data.frame(
-  Duration_Initial_PC_SUCCESS,
-  Duration_Initial_PC_FAIL,
-  Duration_Initial_PC_MORT
-)
-
-### This is saved
-write.csv(Fitness_MODEL_PC_FULL , file = here(
-  "Output",
-  "Fitness_Model",
-  "Fitness_MODEL_PC_FULL.csv"
-))
 
