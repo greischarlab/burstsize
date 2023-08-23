@@ -8,12 +8,6 @@ rate_PMR <- function(x, B_V, C_V, mu_M){
   return(cbind(time = x[,'time'],rate, B_V,C_V))
 }
 
-rate_frac_PMR <- function(x, B_V, C_V, mu_M){
-  p =   4.0e-6
-  rate = ((x[,"R"] * p)/((p*x[,"R"]) + mu_M))
-  return(cbind(time = x[,'time'],rate, B_V,C_V))
-}
-
 
 rate_PMR_data <- function(x, y, B_Vec, C_Value, mu_M){
 

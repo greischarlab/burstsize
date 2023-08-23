@@ -20,191 +20,58 @@
 library(here)
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "Grapher_vert_hor.R"))
-
+source(here("Code", "Helper_Function_Code", "03_SurfacePlot_Maker.R"))
 
 ######################################################
 ### Makes Figure 2, which is the surface plot of the##
 ### acute phase duration and the fitness
 ####################################################
-Fitness_MODEL_PC_FULL <- read.csv(here(
+Fitness_MODEL_PC_FULL_LOW_SUPP <- read.csv(here(
   "Output", "Fitness_Model",
-  "Fitness_MODEL_PC_FULL.csv"
+  "FITNESS_MODEL_PC_43.58965.csv"
 ))
 
-###Produces the mortality and non-establishing infection lines
-horizontal_vert_df <- grapher_mortality_boundary(Fitness_MODEL_PC_FULL)
+Fitness_MODEL_PC_FULL_MED <- read.csv(here(
+  "Output", "Fitness_Model",
+  "FITNESS_MODEL_PC_4358.965.csv"
+))
 
-###Find the optimum_point-
-optimum_strategy <- Fitness_MODEL_PC_FULL[which.max(Fitness_MODEL_PC_FULL$end_fitness),]
-
-###Find the longest point 
-longest_strategy <- Fitness_MODEL_PC_FULL[which.max(Fitness_MODEL_PC_FULL$endtime),]
-
-
-########################################################################
-### The surfaceplot describing the cumulative transmission potential (days)##
-########################################################################
-
-GG_Fitness_Cut_PC <-
-  ggplot(
-    subset(
-      Fitness_MODEL_PC_FULL,
-      Fitness_MODEL_PC_FULL$status !=
-        "Fail"
-    ),
-    aes(x = B_V, y = C_V)
-  ) +
-  geom_raster(aes(fill = end_fitness)) +
-  geom_raster(
-    data = subset(
-      Fitness_MODEL_PC_FULL,
-      Fitness_MODEL_PC_FULL$status ==
-        "Fail"
-    ),
-    aes(x = B_V, y = C_V), fill = "#d1dbe8"
-  ) +
-  geom_segment(
-    data = horizontal_vert_df,
-    aes(
-      x = x, xend = xend,
-      y = y, yend = yend,
-      color = id
-    ), size = 1.1,
-    lineend = "round"
-  ) +
-  scale_color_manual(
-    values = c(
-      "fail" = "black",
-      "mort" = "#b8fcd5"
-    ),
-    guide = "none"
-  ) +
-  scale_fill_viridis(
-    name = "Cumulative transmission \npotential",
-    option = "magma"
-  ) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
-  ylab("Transmission investment (c)") +
-  theme(
-    text = element_text(size = 14),
-    axis.text = element_text(size = 14, color = "black"),
-    axis.title = element_text(size = 14, color = "black"),
-    legend.position = "top"
-  ) +
-  geom_point(data = optimum_strategy ,
-             aes( x = B_V, y= C_V),
-             color = '#FF116B', size = 2)+
-  geom_segment(
-    data = optimum_strategy,
-    aes(
-    x = B_V, xend = B_V, y = 0.01, yend = C_V)
-    , col = "#FF116B",
-    linetype = 2) +
-    geom_segment(data = optimum_strategy ,
-      aes(
-      x =1, xend = B_V, y = C_V, yend = C_V), col = "#FF116B",
-      linetype = 2) +
- 
-  annotate("text",
-    x = 8, y = 0.93, label = "Unestablished \ninfection",
-    size = 5
-  ) +
-  annotate("text",
-    x = 45, y = 0.1, label = "Host \nMortality",
-    size = 5, color = "#b8fcd5"
-  )
-GG_Fitness_Cut_PC
-
-ggsave(here("Figures", "Raw", "02_Fitness_SurfacePlot.pdf"),
-  width = 8, height = 7.5, unit = "in"
-)
+Fitness_MODEL_PC_HIGH_SUPP <- read.csv(here(
+  "Output", "Fitness_Model",
+  "FITNESS_MODEL_PC_43589.65.csv"
+))
 
 
-########################################################################
-### The surfaceplot describing the duration of the acute phases (days)##
-########################################################################
-###This is now part of the supplement 
-GG_Duration_Main <-
-  ggplot(
-    subset(
-      Fitness_MODEL_PC_FULL,
-      Fitness_MODEL_PC_FULL$status !=
-        "Fail"
-    ),
-    aes(x = B_V, y = C_V)
-  ) +
-  geom_raster(aes(fill = endtime)) +
-  geom_raster(
-    data = subset(
-      Fitness_MODEL_PC_FULL,
-      Fitness_MODEL_PC_FULL$status ==
-        "Fail"
-    ),
-    aes(x = B_V, y = C_V), fill = "#d1dbe8"
-  ) +
-  geom_segment(
-    data = horizontal_vert_df,
-    aes(
-      x = x,
-      xend = xend,
-      y = y,
-      yend = yend,
-      color = id
-    ),
-    size = 1.2,
-    lineend = "round"
-  ) +
-  scale_color_manual(
-    values = c(
-      "fail" = "black",
-      "mort" = "#b8fcd5"
-    ),
-    guide = "none"
-  ) +
-  scale_fill_viridis(option = 'turbo')+
-#  scale_fill_distiller(
-#    name = "Acute phase \n duration (days)",
-#    type = "seq",
-#    direction = -1,
-#    palette = "Greys",
-#    na.value = "black"
-#  ) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
-  ylab("Transmission investment (c)") +
-  theme(
-    text = element_text(size = 14, color = "black"),
-    axis.text = element_text(size = 14, color = "black"),
-    axis.title = element_text(size = 15, color = "black"),
-    legend.position = "top"
-  ) +
-  geom_point(data = longest_strategy ,
-             aes( x = B_V, y= C_V),
-             color = 'black', size = 2)+
-  geom_segment(
-    data = longest_strategy,
-    aes(
-      x = B_V, xend = B_V, y = 0.01, yend = C_V)
-    , col = "black",
-    linetype = 2) +
-  geom_segment(data = longest_strategy ,
-               aes(
-                 x =1, xend = B_V, y = C_V, yend = C_V), col = "black",
-               linetype = 2) +
-  annotate("text",
-           x = 8, y = 0.93, label = "Unestablished \ninfection",
-           size = 5
-  ) +
-  annotate("text",
-           x = 45, y = 0.1, label = "Host \nMortality",
-           size = 5, color = "#b8fcd5"
-  )
+LOW_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_FULL_LOW_SUPP,"Low")
+MED_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_FULL_MED ,"Med")
+HIGH_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_HIGH_SUPP  ,"High")
 
-GG_Duration_Main
+###IF you want to see the 
 
-ggsave(here("Figures","Raw", "SUPP_Duration_SurfacePlot.pdf"),
-       width = 8, height = 7.5, unit = "in"
-)
+Best_Strategy_Finder(Fitness_MODEL_PC_FULL_LOW_SUPP)
+Best_Strategy_Finder(Fitness_MODEL_PC_FULL_MED )
+Best_Strategy_Finder(Fitness_MODEL_PC_HIGH_SUPP)
+
+###I think I want the
+
+
+LOW_GG_SurfacePlot  + HIGH_GG_SurfacePlot 
+
+ggsave(here("Figures", "Raw", "Supp_Low_High_SurfacePlots.pdf"),
+       width = 11, height =5.5, unit = "in")
+
+
+###DURATION SUPP PLOTS
+LOW_GG_SurfacePlot_D<- MAIN_SURFACEPLOT_GG_GRAPHER_DURATION(Fitness_MODEL_PC_FULL_LOW_SUPP,"Low")
+MED_GG_SurfacePlot_D<- MAIN_SURFACEPLOT_GG_GRAPHER_DURATION(Fitness_MODEL_PC_FULL_MED ,"Med")
+HIGH_GG_SurfacePlot_D<- MAIN_SURFACEPLOT_GG_GRAPHER_DURATION(Fitness_MODEL_PC_HIGH_SUPP  ,"High")
+
+
+Longest_Finder(Fitness_MODEL_PC_FULL_LOW_SUPP)
+Longest_Finder(Fitness_MODEL_PC_FULL_MED )
+Longest_Finder(Fitness_MODEL_PC_HIGH_SUPP)
+
+LOW_GG_SurfacePlot_D + MED_GG_SurfacePlot_D + HIGH_GG_SurfacePlot_D
+
+ggsave(here("Figures", "Raw", "Supp_Duration_SurfacePlots.pdf"),
+       width = 12, height =5.5, unit = "in")

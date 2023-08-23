@@ -9,7 +9,7 @@ List Erlang_Malaria_Cut_GFLUX(
     NumericVector params) {
   
   //parameters 
-  float lambda = params["lambda"];
+  float  lambda = params["lambda"];
   float  K = params["K"];
   float  pmax = params["pmax"]; 
   float  muR = params["muR"];
@@ -22,7 +22,7 @@ List Erlang_Malaria_Cut_GFLUX(
   float  muG = params["muG"];
   int    n1 = params["n1"];
   int    n2 = params["n2"];
-  float endtime = params["endtime"];
+  float  endtime = params["endtime"];
   
   Rcpp::NumericVector dy(n1+n2+5);
   
