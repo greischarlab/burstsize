@@ -20,7 +20,7 @@
 library(here)
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "Grapher_vert_hor.R"))
-source(here("Code", "Helper_Function_Code", "03_SurfacePlot_Maker.R"))
+source(here("Code", "Helper_Function_Code","Plotters", "03_SurfacePlot_Maker.R"))
 
 ######################################################
 ### Makes Figure 2, which is the surface plot of the##
@@ -28,17 +28,17 @@ source(here("Code", "Helper_Function_Code", "03_SurfacePlot_Maker.R"))
 ####################################################
 Fitness_MODEL_PC_FULL_LOW_SUPP <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_43.58965.csv"
+  "FITNESS_MODEL_PC_low.csv"
 ))
 
 Fitness_MODEL_PC_FULL_MED <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_4358.965.csv"
+  "FITNESS_MODEL_PC_med.csv"
 ))
 
 Fitness_MODEL_PC_HIGH_SUPP <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_43589.65.csv"
+  "FITNESS_MODEL_PC_high.csv"
 ))
 
 
@@ -53,7 +53,10 @@ Best_Strategy_Finder(Fitness_MODEL_PC_FULL_MED )
 Best_Strategy_Finder(Fitness_MODEL_PC_HIGH_SUPP)
 
 ###I think I want the
+MED_GG_SurfacePlot
 
+ggsave(here("Figures", "Raw", "MED_SurfacePlots.pdf"),
+       width = 8.5, height =8.5, unit = "in")
 
 LOW_GG_SurfacePlot  + HIGH_GG_SurfacePlot 
 

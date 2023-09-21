@@ -9,12 +9,15 @@
 ###investment specifically and the percent modifier is how much the original
 ###parameter is varied by (default is 25%). The output from these models 
 ###are the RBC/gam abundance over time.
-Simulator_Malaria_BC_MuM <- function(B_V, C_V, change) {
+rootfun <- function (t, y, parms) {return(y['R'] - 6.5*10^5)}
+
+
+Simulator_Malaria_BC_MuM <- function(B_V, C_V, initial_value, change) {
 
   params_muM <-
     c(lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = 19968254, # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -35,7 +38,7 @@ Simulator_Malaria_BC_MuM <- function(B_V, C_V, change) {
   ### The initial numbers
   inits_n <- c(
     R = 8500000, # RBC
-    I = rep(43859.65 / n1, n1), # Infected RBC- note the uniform distribution
+    I = rep(initial_value/ n1, n1), # Infected RBC- note the uniform distribution
     M = 0, # merozoite
     IG = rep(0, n2), # immature gametocytes
     G = 0
@@ -48,24 +51,33 @@ Simulator_Malaria_BC_MuM <- function(B_V, C_V, change) {
       y = inits_n,
       times = times,
       func = Erlang_Malaria,
-      parms = params_muM)
+      parms = params_muM,
+      rootfun = rootfun)
 
 
 
-  df_mu_M <- data.frame(out_DDE_mu_M[, c("time", "R", "G")],
-    B_V = B_V, C_V = C_V, change =  change)
+  df_mu_M <-  data.frame(out_DDE_mu_M[, c("time", "R", "G")], 
+                                B_V = B_V, 
+                                C_V = C_V,
+                                initialvalue = initialvalue,
+                                infection_length = 
+                                  ifelse(!is.null(attributes(out_DDE)$troot),
+                                         attributes(out_DDE)$troot,
+                                         NA))
+  
 
 
 
   return(df_mu_M)
 }
-Simulator_Malaria_BC_Lambda <- function(B_V, C_V, change) {
+
+Simulator_Malaria_BC_Lambda <- function(B_V, C_V, initial_value, change) {
  
   params_lambda <-
     c(
       lambda = change, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = (change* 8500000) / (change - (0.025 * 8500000)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -87,7 +99,7 @@ Simulator_Malaria_BC_Lambda <- function(B_V, C_V, change) {
    ### The initial numbers
   inits_n <- c(
     R = 8500000, # RBC
-    I = rep(43859.65 / n1, n1), # Infected RBC- note the uniform distribution
+    I = rep(initial_value / n1, n1), # Infected RBC- note the uniform distribution
     M = 0, # merozoite
     IG = rep(0, n2), # immature gametocytes
     G = 0
@@ -102,25 +114,31 @@ Simulator_Malaria_BC_Lambda <- function(B_V, C_V, change) {
       y = inits_n,
       times = times,
       func = Erlang_Malaria,
-      parms = params_lambda)
+      parms = params_lambda,
+      rootfun = rootfun)
   
   
   
-  df_L<- data.frame(out_DDE_L[, c("time", "R", "G")],
-                        B_V = B_V, C_V = C_V, change =  change)
+  df_L<- data.frame(out_DDE_L[, c("time", "R", "G")], 
+                    B_V = B_V, 
+                    C_V = C_V,
+                    initialvalue = initialvalue,
+                    infection_length = 
+                      ifelse(!is.null(attributes(out_DDE)$troot),
+                             attributes(out_DDE)$troot,
+                             NA))
   
   
   
   return(df_L)
 }
-
-Simulator_Malaria_BC_RI <- function(B_V, C_V, change) {
+Simulator_Malaria_BC_RI <- function(B_V, C_V, initial_value, change) {
 
   params_RI <-
     c(
       lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = (370000 * change) / (370000 - (0.025 * change)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -141,7 +159,7 @@ Simulator_Malaria_BC_RI <- function(B_V, C_V, change) {
   ### The initial numbers
   inits_RI <- c(
     R = change,
-    I = rep(43859.65 / n1 , n1),
+    I = rep(initial_value / n1 , n1),
     M = 0,
     IG = rep(0,n2),
     G = 0
@@ -155,24 +173,30 @@ Simulator_Malaria_BC_RI <- function(B_V, C_V, change) {
       y = inits_RI,
       times = times,
       func = Erlang_Malaria,
-      parms = params_RI
+      parms = params_RI,
+      rootfun = rootfun
+      
     )
 
  
 
-  df_RI <- data.frame(out_DDE_RI[, c("time", "R", "G")], B_V = B_V, C_V = C_V, change = change)
-
+  df_RI <- data.frame(out_DDE_RI[, c("time", "R", "G")], 
+                      B_V = B_V, 
+                      C_V = C_V,
+                      initialvalue = initialvalue,
+                      infection_length = 
+                        ifelse(!is.null(attributes(out_DDE)$troot),
+                               attributes(out_DDE)$troot,
+                               NA))
   return(df_RI)
 }
-
-
-Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, change) {
+Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, initial_value, change) {
   
   params_RI <-
     c(
       lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = (370000 * change) / (370000 - (0.025 * change)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -193,7 +217,7 @@ Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, change) {
   ### The initial numbers
   inits_RI <- c(
     R = change,
-    I = rep(43859.65 / n1 , n1),
+    I = rep(initial_value/ n1 , n1),
     M = 0,
     IG = rep(0,n2),
     G = 0
@@ -207,12 +231,20 @@ Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, change) {
       y = inits_RI,
       times = times,
       func = Erlang_Malaria,
-      parms = params_RI
+      parms = params_RI,
+      rootfun = rootfun
     )
   
   
   
-  df_RI <- data.frame(out_DDE_RI[, c("time", "R", "G")], B_V = B_V, C_V = C_V, change = change)
+  df_RI <- data.frame(out_DDE_RI[, c("time", "R", "G")], 
+                      B_V = B_V, 
+                      C_V = C_V,
+                      initialvalue = initialvalue,
+                      infection_length = 
+                        ifelse(!is.null(attributes(out_DDE)$troot),
+                               attributes(out_DDE)$troot,
+                               NA))
   
   return(df_RI)
 }
@@ -230,12 +262,12 @@ Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, change) {
 ###are the RBC/gam abundance over time.
 
 
-Simulator_MalariaPC_DDE_BC_MuM_Cut <- function(B_V, C_V, change, endtime) {
+Simulator_MalariaPC_DDE_BC_MuM_Cut <- function(B_V, C_V, change,initial_value, endtime) {
   parameters_muM <-
     c(
       lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = 19968254, # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -257,7 +289,7 @@ Simulator_MalariaPC_DDE_BC_MuM_Cut <- function(B_V, C_V, change, endtime) {
   ### The initial numbers
   inits_n <- c(
     R = 8500000,
-    I = rep(43859.65 / n1, n1),
+    I = rep(initial_value / n1, n1),
     M = 0,
     IG = rep(0, n2),
     G = 0
@@ -274,12 +306,12 @@ Simulator_MalariaPC_DDE_BC_MuM_Cut <- function(B_V, C_V, change, endtime) {
   return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V,
                     change =  change))
 }
-Simulator_MalariaPC_DDE_BC_Lambda_Cut <- function(B_V, C_V, change, endtime) {
+Simulator_MalariaPC_DDE_BC_Lambda_Cut <- function(B_V, C_V, change,initial_value, endtime) {
   parameters_Lambda <-
     c(
       lambda = change, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = (change * 8500000) / (change - (0.025 * 8500000)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -301,7 +333,7 @@ Simulator_MalariaPC_DDE_BC_Lambda_Cut <- function(B_V, C_V, change, endtime) {
   ### The initial numbers
   inits_n <- c(
     R = 8500000,
-    I = rep(43859.65 / n1, n1),
+    I = rep(initial_value / n1, n1),
     M = 0,
     IG = rep(0, n2),
     G = 0
@@ -318,13 +350,13 @@ Simulator_MalariaPC_DDE_BC_Lambda_Cut <- function(B_V, C_V, change, endtime) {
   return(data.frame(out_DDE[, c("time", "R", "G")], B_V = B_V, C_V = C_V,
                     change =  change))
 }
-Simulator_MalariaPC_DDE_BC_RI_Cut <- function(B_V, C_V, change, endtime) {
+Simulator_MalariaPC_DDE_BC_RI_Cut <- function(B_V, C_V, change, initial_value, endtime) {
  
   parameters_RI <-
     c(
       lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = (370000 * change) / (370000 - (0.025 * change)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 2.5e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
+      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
       muR = 0.025, # Daily mortality rate of red blood cells
       muI = 0.025, # Daily mortality rate of infected red blood cells
       c = C_V, # Transmission investment (THE VARYING FACTOR)
@@ -347,7 +379,7 @@ Simulator_MalariaPC_DDE_BC_RI_Cut <- function(B_V, C_V, change, endtime) {
   ### The initial numbers
   inits_RI <- c(
     R = change,
-    I = rep(43859.65 / n1 , n1),
+    I = rep(initial_value / n1 , n1),
     M = 0,
     IG = rep(0,n2),
     G = 0
@@ -407,13 +439,15 @@ B_V_C_V_Establisher <- function(sens_var,percent_modifier) {
   ### are unable to establish the infection so that I can exclude from
   ### simulation (the acute time is set to 0 and transmission potential is set to 0)
   
-  p_val <- 2.5e-6 #Same for everyone
+  p_val <- 4.0e-6 #Same for everyone
   mu_M <- 48 #Only for RI and L 
-  R_val <- 8500000 #Only for L Aand mu M
+  R_val <- 8500000 #Only for L and mu M
+  initial_RM_modifier <- 1.5 #
   
-  RM_limit_UM <- ((p_val * R_val) + mu_M_vec) / (p_val * R_val)
-  RM_limit_RI <- ((p_val * RI_vec) + mu_M ) / (p_val * RI_vec)
-  RM_limit <- ((p_val * R_val) + mu_M ) / (p_val * R_val)
+  
+  RM_limit_UM <- initial_RM_modifier*((p_val * R_val) + mu_M_vec) / (p_val * R_val)
+  RM_limit_RI <- initial_RM_modifier*((p_val * RI_vec) + mu_M ) / (p_val * RI_vec)
+  RM_limit <- initial_RM_modifier*((p_val * R_val) + mu_M ) / (p_val * R_val)
   
   
   limit <- switch(sens_var,

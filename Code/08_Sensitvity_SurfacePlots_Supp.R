@@ -18,18 +18,26 @@ FITNESS_RI <- as.data.frame(fread(here("Output","Fitness_Model",
 FITNESS_UM <- as.data.frame(fread(here("Output","Fitness_Model",
                                            "Fitness_UM.csv")))       
 
+
+Opt_Med_Strategy <- data.frame(B_V = 14.5, C_V =  0.75)
+Long_Med_Strategy <- data.frame(B_V = 4, C_V =  0.09)
+
 ###Lambda
-grapher_SA (FITNESS_L)
+
+
+
+grapher_SA (FITNESS_L,Opt_Med_Strategy,Long_Med_Strategy)
+
 ggsave(here("Figures", "Raw", "SA_L_Duration_Fitness_SurfacePlot.pdf"),
        width = 14, height =10, unit = 'in')
 
 ###Merozoite Mortality
-grapher_SA (FITNESS_UM)
+grapher_SA (FITNESS_UM,Opt_Med_Strategy,Long_Med_Strategy)
 ggsave(here("Figures", "Raw", "SA_UM_Duration_Fitness_SurfacePlot.pdf"),
        width = 14, height =10, unit = 'in')
 
 
-grapher_SA (FITNESS_RI)
+grapher_SA (FITNESS_RI,Opt_Med_Strategy,Long_Med_Strategy)
 ggsave(here("Figures", "Raw", "SA_RI_Duration_Fitness_SurfacePlot.pdf"),
        width = 14, height =10, unit = 'in')
 

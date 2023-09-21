@@ -17,6 +17,7 @@ sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_CUT.cpp"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "02_Simulator_Code.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,
   dir.create("Output/Full_Model"),
@@ -28,11 +29,11 @@ ifelse(dir.exists(here("Output/Fitness_Model")) == FALSE,
   "Directory exists already"
 )
 
+FULL_MODEL_SUPP_SmallInoc <- FULL_MODEL_SIMULATING_Duration(43.85965, 48, "low") 
+FULL_MODEL_MedINoc <- FULL_MODEL_SIMULATING_Duration(4385.96491,48, 'med')
+FULL_MODEL_SUPP_HighInoc <-FULL_MODEL_SIMULATING_Duration(438596.49123, 48, 'high')
 
-FULL_MODEL_SUPP_SmallInoc <- FULL_MODEL_SIMULATING_Duration(43.58965, 48) 
-FULL_MODEL_MedINoc <- FULL_MODEL_SIMULATING_Duration(4358.965,48)
-FULL_MODEL_SUPP_HighInoc <-FULL_MODEL_SIMULATING_Duration(43589.65, 48)
 
+###Proceed to 03_MAIN_ANALYSIS_SURFACEPLOTS.R to make the full surfaceplots
 
-###Proceed to 03_MAIN_ANALYSIS_SURFACEPLOTS.R
 

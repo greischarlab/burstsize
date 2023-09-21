@@ -3,13 +3,13 @@
 ###This is the function for calculating the 
 ###effective merozoite invading 
 rate_PMR <- function(x, B_V, C_V, mu_M){
-  p =   2.5e-6
+  p =   4.0e-6
   rate = (1 - C_V) * B_V*((x[,"R"] * p)/((p*x[,"R"]) + mu_M))
   return(cbind(time = x[,'time'],rate, B_V,C_V))
 }
 
 rate_frac_PMR <- function(x, B_V, C_V, mu_M){
-  p =   2.5e-6
+  p =   4.0e-6
   rate = ((x[,"R"] * p)/((p*x[,"R"]) + mu_M))
   return(cbind(time = x[,'time'],rate, B_V,C_V))
 }

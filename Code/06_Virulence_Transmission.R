@@ -52,31 +52,41 @@ source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "Virulence_Transmission_BurstSize.R"))
 source(here("Code","Simulator_Code", "Simulator_Main_Gflux.R"))
+source(here("Code","Helper_Function_Code", "06_Glux_Simulator.R"))
+source(here("Code", "Helper_Function_Code", "Plotters", "06_Triplot_Plotter.R"))
 ###
 
 Fitness_MODEL_PC_FULL_LOW_SUPP <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_43.58965.csv"
+  "FITNESS_MODEL_PC_low.csv"
 ))
 
 Fitness_MODEL_PC_FULL_MED <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_4358.965.csv"
+  "FITNESS_MODEL_PC_med.csv"
 ))
 
 Fitness_MODEL_PC_HIGH_SUPP <- read.csv(here(
   "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_43589.65.csv"
+  "FITNESS_MODEL_PC_high.csv"
 ))
 
-FULL_MODEL_SIMULATOR_GFLUX_LOW <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_LOW_SUPP,
-                                                              43.58965)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_LOW , 43.58965)
+FULL_MODEL_SIMULATOR_GFLUX_LOW <- FULL_MODEL_SIMULATOR_GFLUX(Fitness_MODEL_PC_FULL_LOW_SUPP,
+                                                              43.85965)
+Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_LOW , 43.58965) + ggtitle("Low inoculation")
 
 FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_MED,
-                                                              4358.965)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED,      4358.965)
+                                                              4385.96491)
+Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED, 4385.96491) 
 
 FULL_MODEL_SIMULATOR_GFLUX_HIGH <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_HIGH_SUPP,
-                                                              43589.6)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_HIGH , 43589.6)
+                                                               438596.49123)
+Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_HIGH , 438596.49123)
+
+
+###
+
+FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_MED,
+                                                              4385.96491)
+Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED, 4385.96491) 
+
