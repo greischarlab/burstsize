@@ -127,7 +127,7 @@ MAIN_SURFACEPLOT_GG_GRAPHER_DURATION <- function(x,name){
         yend = yend,
         color = id
       ),
-      size = 1.2,
+      size = 1,
       lineend = "round"
     ) +
     scale_color_manual(
@@ -137,7 +137,8 @@ MAIN_SURFACEPLOT_GG_GRAPHER_DURATION <- function(x,name){
       ),
       guide = "none"
     ) +
-    scale_fill_viridis(option = 'turbo')+
+    scale_fill_viridis("Acute phase \n duration (days)",
+                       option = 'viridis')+
     #  scale_fill_distiller(
     #    name = "Acute phase \n duration (days)",
     #    type = "seq",

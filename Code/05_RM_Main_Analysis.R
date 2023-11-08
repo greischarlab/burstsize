@@ -27,8 +27,11 @@ MODEL_PC_FULL_MED <- read.csv(here(
 
 ###What are the burst size of interests
 
-B_Interest <- c(14.5, 15, 15.5)
+B_Interest <- c(14.5, 18.0)
 C_Interest <- c(0.75)
+
+###Look 
+
 
 rate_PMR_dataframe1 <- rate_PMR_data(
   MODEL_PC_FULL_MED ,
@@ -38,10 +41,53 @@ rate_PMR_dataframe1 <- rate_PMR_data(
   48
 )
 
-rate_PMR_FULL_TS <- rbind(rate_PMR_dataframe1[[1]])
-rate_PMR_FULL_points <- rbind(rate_PMR_dataframe1[[2]])
+B_V_Interest_one <- 11
 
-RM_Plotter(rate_PMR_FULL_TS ,rate_PMR_FULL_points)
+FULL_One_MED<- Simulator_Malaria_BC(B_V_Interest_one,0.75,4385.96491)
 
-ggsave(file = here("Figures", "Raw", "RM_3_Plot.pdf"), width =9, height = 11, units = "in")
+Duration_Initial_One_MED <-  Finder_RM(FULL_One_MED, 48)
+Duration_Initial_One_MED$B_V = B_V_Interest_one
+Duration_Initial_One_MED$C_V = 0.75
+
+Fitness_MODEL_One_MED<- mcmapply(Simulator_MalariaPC_DDE_BC_Cut,
+                                   c(B_V_Interest_one),
+                                   0.75,
+                                   4385.96491,
+                                   Duration_Initial_One_MED$endtime,
+                                   mc.cores = 5,
+                                   SIMPLIFY = FALSE)
+
+
+Duration_Initial_One_MED$end_fitness <-
+  unlist(lapply(Fitness_MODEL_One_MED, Gametocyte_Fitness))
+
+
+
+
+
+rate_PMR_dataframe2 <- rate_PMR_data(
+  FULL_One_MED,
+  Duration_Initial_One_MED ,
+  c(B_V_Interest_one) ,
+  0.75,
+  48
+)
+
+
+
+
+rate_PMR_FULL_1 <- rbind(rate_PMR_dataframe1 [[1]],
+                         rate_PMR_dataframe2 [[1]])
+
+rate_PMR_FULL_2 <- rbind(rate_PMR_dataframe1 [[2]],
+                         rate_PMR_dataframe2 [[2]])
+
+
+
+RM_Plotter(rate_PMR_FULL_1  ,rate_PMR_FULL_2)
+
+ggsave(file = here("Figures", "Raw", "RM_3_Plot_2_Axis.pdf"), width =9, height = 11, units = "in")
+
+####Inclusion...
+
 

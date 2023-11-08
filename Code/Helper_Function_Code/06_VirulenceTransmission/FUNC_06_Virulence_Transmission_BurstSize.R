@@ -44,6 +44,7 @@ Virulence_Gam_Finder <- function (fitness_list){
 
  full_df <- data.frame(RMin, GMax, 
                        B_V = unique(fitness_list$B_V),
+                       C_V = unique(fitness_list$C_V),
                        endtime = unique(fitness_list$endtime),
                        status = unique(fitness_list$status))
  

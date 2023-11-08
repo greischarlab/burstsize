@@ -112,7 +112,6 @@ FULL_MODEL_SIMULATING_Duration <- function(initial_value, mu_M_value, id){
                                SIMPLIFY = FALSE
   )
   
-  ### Now we know what the fitness is
   Duration_Initial_PC_SUCCESS$end_fitness <-
     unlist(lapply(Fitness_MODEL_PC, Gametocyte_Fitness))
   
@@ -123,14 +122,14 @@ FULL_MODEL_SIMULATING_Duration <- function(initial_value, mu_M_value, id){
     Duration_Initial_PC_MORT
   )
   
-  
   ### Write into a CSV TO BE SAVED 
   write.csv(Fitness_MODEL_PC_FULL, file = here(
     "Output", "Fitness_Model",
     paste("FITNESS_MODEL_PC_",id,".csv", sep = "")))
   
-
+  
   return(Fitness_MODEL_PC_FULL)
+  
   
 }
 

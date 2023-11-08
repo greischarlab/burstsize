@@ -44,7 +44,16 @@ Fitness_MODEL_PC_HIGH_SUPP <- read.csv(here(
 
 LOW_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_FULL_LOW_SUPP,"Low")
 MED_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_FULL_MED ,"Med")
+
+###VERSION TWO?
+MED_GG_SurfacePlot + geom_point(data = Three_Point_Strategies_Surfaceplot,
+                                aes( x=B_V, y=C_V, color = id), size = 2)
+
 HIGH_GG_SurfacePlot <- MAIN_SURFACEPLOT_GG_GRAPHER_FIT(Fitness_MODEL_PC_HIGH_SUPP  ,"High")
+
+ggsave(here("Figures", "Raw", "MED_2_SurfacePlots.pdf"),
+       width = 8.5, height =8.5, unit = "in")
+
 
 ###IF you want to see the 
 
@@ -74,7 +83,7 @@ Longest_Finder(Fitness_MODEL_PC_FULL_LOW_SUPP)
 Longest_Finder(Fitness_MODEL_PC_FULL_MED )
 Longest_Finder(Fitness_MODEL_PC_HIGH_SUPP)
 
-LOW_GG_SurfacePlot_D + MED_GG_SurfacePlot_D + HIGH_GG_SurfacePlot_D
+LOW_GG_SurfacePlot_D + MED_GG_SurfacePlot_D + HIGH_GG_SurfacePlot_D 
 
 ggsave(here("Figures", "Raw", "Supp_Duration_SurfacePlots.pdf"),
-       width = 12, height =5.5, unit = "in")
+       width = 14, height =5.5, unit = "in")

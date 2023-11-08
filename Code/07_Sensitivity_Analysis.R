@@ -100,7 +100,7 @@ Duration_UM_PC <- rbind(Duration_UM_PC_36,Duration_UM_PC_60)
 FITNESS_UM <- Fitness_Finder_SA(
                   B_V_C_V_UM_F,
                   Duration_UM_PC,
-                  "UM", 4385.96491)
+                   4385.96491, "UM")
 
 write.csv(FITNESS_UM , file = here(
   "Output", "Fitness_Model",
@@ -148,7 +148,7 @@ Duration_RI_PC$change<- B_V_C_V_RI_F_E$RI
 FITNESS_RI <- Fitness_Finder_SA(
   B_V_C_V_RI_F,
   Duration_RI_PC,
-  "RI",4385.96491)
+  4385.96491,"RI")
 
 write.csv(FITNESS_RI , file = here(
   "Output", "Fitness_Model",
@@ -192,7 +192,7 @@ Duration_L_PC$change<- B_V_C_V_L_F_E$L
 FITNESS_L <- Fitness_Finder_SA(
   B_V_C_V_L_F,
   Duration_L_PC,
-  "lambda",4385.96491)
+  4385.96491,"lambda")
 
 
 

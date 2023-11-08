@@ -63,9 +63,6 @@ average_life_span_ALL <- function(full_x, lifespan) {
   return(full_lifespan_f)
 }
 
-
-
-
 Day10_LOW <- average_life_span_ALL (FULL_MODEL_100_LOW , 50)
 
 ggplot(Day10_LOW, aes(x = B_V, y= C_V, fill =  end_fitness)) + geom_tile() + scale_fill_viridis() +

@@ -60,9 +60,10 @@ Simulator_Malaria_BC_MuM <- function(B_V, C_V, initial_value, change) {
                                 B_V = B_V, 
                                 C_V = C_V,
                                 initialvalue = initialvalue,
+                                change = change,
                                 infection_length = 
-                                  ifelse(!is.null(attributes(out_DDE)$troot),
-                                         attributes(out_DDE)$troot,
+                                  ifelse(!is.null(attributes(out_DDE_mu_M )$troot),
+                                         attributes(out_DDE_mu_M )$troot,
                                          NA))
   
 
@@ -123,9 +124,10 @@ Simulator_Malaria_BC_Lambda <- function(B_V, C_V, initial_value, change) {
                     B_V = B_V, 
                     C_V = C_V,
                     initialvalue = initialvalue,
+                    change = change,
                     infection_length = 
-                      ifelse(!is.null(attributes(out_DDE)$troot),
-                             attributes(out_DDE)$troot,
+                      ifelse(!is.null(attributes(out_DDE_L)$troot),
+                             attributes(out_DDE_L)$troot,
                              NA))
   
   
@@ -184,68 +186,11 @@ Simulator_Malaria_BC_RI <- function(B_V, C_V, initial_value, change) {
                       B_V = B_V, 
                       C_V = C_V,
                       initialvalue = initialvalue,
+                      change= change,
                       infection_length = 
-                        ifelse(!is.null(attributes(out_DDE)$troot),
-                               attributes(out_DDE)$troot,
+                        ifelse(!is.null(attributes(out_DDE_RI)$troot),
+                               attributes(out_DDE_RI)$troot,
                                NA))
-  return(df_RI)
-}
-Simulator_Malaria_BC_RI_Extend <- function(B_V, C_V, initial_value, change) {
-  
-  params_RI <-
-    c(
-      lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
-      K = (370000 * change) / (370000 - (0.025 * change)), # Carrying capacity of RBC population in the absence of mortality
-      pmax = 4.0e-6, # Rate of infection (From American Naturalist- Greischar et al. 2014)
-      muR = 0.025, # Daily mortality rate of red blood cells
-      muI = 0.025, # Daily mortality rate of infected red blood cells
-      c = C_V, # Transmission investment (THE VARYING FACTOR)
-      B = B_V, # The burst size (THE VARYING FACTOR)
-      alpha1 = 1, # The rate of development of parasite in iRBC
-      alpha2 = 1 / 2, # The rate of development
-      muM = 48, # Background mortality of the merozoite
-      muG = 4, # background mortality of the immature/mature gametocytes
-      n1 = 100, # shape parameter controlling the variability in asexual devleopment
-      n2 = 100 # shape parameter controlling the variability in sexual development
-    )
-  
-  n1 <- params_RI[['n1']] 
-  ### The number of subcompartments for immature gametocytes
-  n2 <- params_RI[['n2']]
-  
-  
-  ### The initial numbers
-  inits_RI <- c(
-    R = change,
-    I = rep(initial_value/ n1 , n1),
-    M = 0,
-    IG = rep(0,n2),
-    G = 0
-  )
-  
-  times <- seq(0, 150, by = 1 / 10)
-  
-  
-  out_DDE_RI <-
-    ode(
-      y = inits_RI,
-      times = times,
-      func = Erlang_Malaria,
-      parms = params_RI,
-      rootfun = rootfun
-    )
-  
-  
-  
-  df_RI <- data.frame(out_DDE_RI[, c("time", "R", "G")], 
-                      B_V = B_V, 
-                      C_V = C_V,
-                      initialvalue = initialvalue,
-                      infection_length = 
-                        ifelse(!is.null(attributes(out_DDE)$troot),
-                               attributes(out_DDE)$troot,
-                               NA))
-  
   return(df_RI)
 }
 
@@ -401,7 +346,7 @@ Simulator_MalariaPC_DDE_BC_RI_Cut <- function(B_V, C_V, change, initial_value, e
 #####################
 ### Runs everything###
 #####################
-Sens_Analysis <- function(B_V, C_V, change, sens_var) {
+Sens_Analysis <- function(B_V, C_V,initalvalue,change, sens_var) {
   function_sens_var <-
     switch(sens_var,
       "UM" = Simulator_Malaria_BC_MuM,
@@ -410,7 +355,7 @@ Sens_Analysis <- function(B_V, C_V, change, sens_var) {
     )
 
 
-  return(function_sens_var(B_V, C_V, change))
+  return(function_sens_var(B_V, C_V, initalvalue,change))
 }
 
 
@@ -506,121 +451,6 @@ B_V_C_V_Establisher <- function(sens_var,percent_modifier) {
 ###to be populated by the next function- we run this function to figure out
 ###what the length of the acute phase is
 
-Finder_RM_SA <- function(x_list, sens_var) {
-
-
- if (sens_var == "UM") { ### If the sens_var is UM then we need to account
-   ### for the difference in mortality rates
-   mu_M_c <- unique(x_list$change)
- } else { ### If the sens_var is not UM then we just the control UM (48)
-   mu_M_c <- 48
- }
-
- ### Shape parameter (to ensure we're getting the right columns)
- n1 <- 100
-
- ### Check first if the infection induces mortality
- ### Look at the red blood cells time series only
-
- RBC_TS <-
-   data.frame(
-     time = x_list$time,
-     RBC = x_list[, "R"]
-   )
- ### Look at the red blood cells to see when it is under 6.5 * 10^5
-
- index_time_mort <- data.frame(
-   RBC_TS[which(RBC_TS$RBC
-   <= 6.5 * 10^5), ]
- )
-
- if (nrow(index_time_mort) == 0) { # If it is empty that means that there is no
-   # RBC that dips below the mortality threshold
-   mort_time <- cbind.data.frame(
-     surv = "surv",
-     time = NA
-   )
- } else {
-   RBC_TS_Func <- approxfun(
-     RBC_TS[, "time"],
-     RBC_TS[, "RBC"] - 6.5 * 10^5
-   )
-
-   death_time <- uniroot(RBC_TS_Func, c(0, index_time_mort$time[1]))
-
-   mort_time <- cbind.data.frame(
-     surv = "mort",
-     time = death_time$root
-   )
- }
- 
-
- ### This now checks the Acute Phase Duration for the Mice
- ### That Survived
-
-
- if (mort_time$surv == "surv") {
-   p <- 2.5e-6 # this is a parameter value that does not change
-
-  rate <- (1 - unique(x_list$C_V)) *
-     unique(x_list$B_V) * ((x_list[, "R"] * p) /
-       ((p * x_list[, "R"]) + mu_M_c))
-
-   RM_time_df <- cbind.data.frame(
-     time = x_list[, "time"],
-     rate = rate,
-     B_V = unique(x_list[, "B_V"]),
-     C_V = unique(x_list[, "C_V"])
-   )
-
-   min_RM <- RM_time_df[which.min(RM_time_df$rate), ]
-
-   end_time <- subset(
-     RM_time_df,
-     RM_time_df$time >= min_RM$time & RM_time_df$rate >= 1
-   )[1, "time"] ### Endtime is the first time when the
-
-   
-   end_time_list <-
-     data.frame(
-       endtime = end_time,
-       up_down = "up",
-       end_fitness = NA,
-       status = "success",
-       B_V = unique(x_list$B_V),
-       C_V = unique(x_list$C_V),
-       change = unique(x_list$change)
-     )
- } else {
-   ### Look at the infected red blood cells time series only
-   ### Calculating the fitness
-   G_TS <- data.frame(
-     time = x_list[, "time"],
-     G = x_list[, "G"]
-   )
-
-   # Prevent negative gamaetocytes
-   G_TS$G[G_TS$G < 0] <- 0
-
-   truncate_G_TS <- subset(G_TS, G_TS$time <= mort_time$time)
-
-
-   end_fitness_mort <- sum(PrI_PC(truncate_G_TS$G) * 1 / 10)
-
-   end_time_list <-
-     data.frame(
-       endtime = mort_time$time,
-       up_down = "up",
-       end_fitness = end_fitness_mort,
-       status = "mort",
-       B_V = unique(x_list$B_V),
-       C_V = unique(x_list$C_V),
-       change = unique(x_list$change)
-     )
- }
- return(end_time_list)
-  }
- 
 
 
 ###For the sensitivity analysis finding the Finder
@@ -628,6 +458,7 @@ Finder_RM_SA <- function(x_list, sens_var) {
 ###that do not establish infection  
 Fitness_Finder_SA <- function(BC_vec,
                               Duration,
+                              initial_value,
                               sens_var) {
   sim <-
     switch(sens_var,
@@ -680,6 +511,7 @@ Fitness_Finder_SA <- function(BC_vec,
       c(Duration_SUCCESS$B_V),
       c(Duration_SUCCESS$C_V),
       c(Duration_SUCCESS$change),
+      c(initialvalue),
       c(Duration_SUCCESS$endtime),
       mc.cores = 1,
       SIMPLIFY = FALSE

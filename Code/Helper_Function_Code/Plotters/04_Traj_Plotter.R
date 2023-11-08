@@ -1,5 +1,3 @@
-x = Fitness_MODEL_PC_FULL_MED
-y = RC_MED[[3]]
 
 TRAJ_PLOT_GG <- function(x,y){
 
@@ -67,13 +65,7 @@ horizontal_vert_df <- grapher_mortality_boundary(x)
         legend.position = "none"
   ) +
   coord_cartesian(xlim =c(0,50), ylim = c(0,1))
-print(traj_plot_GG )
 
-
-
-ggsave(here("Figures", "Raw", "Standard_Duration_Plots_Alt.pdf"),
-       height = 4, width = 10,
-       units = 'in')
 
 
 

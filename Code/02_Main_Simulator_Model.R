@@ -10,13 +10,12 @@ library(here)
 # This is one of the longer code to source
 
 ### Packages to load
-source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-
+source(here("Code", "Helper_Function_Code", "00_Packages_Loader.R"))
 ### Main modeling code
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_CUT.cpp"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
-source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "00_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "02_Simulator_Code.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,

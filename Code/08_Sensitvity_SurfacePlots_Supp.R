@@ -27,19 +27,26 @@ Long_Med_Strategy <- data.frame(B_V = 4, C_V =  0.09)
 
 
 grapher_SA (FITNESS_L,Opt_Med_Strategy,Long_Med_Strategy)
+by(FITNESS_L, FITNESS_L$change,  Best_Strategy_Finder)
+by(FITNESS_L, FITNESS_L$change,  Longest_Finder )
 
 ggsave(here("Figures", "Raw", "SA_L_Duration_Fitness_SurfacePlot.pdf"),
-       width = 14, height =10, unit = 'in')
+       width = 10, height =10, unit = 'in')
 
 ###Merozoite Mortality
 grapher_SA (FITNESS_UM,Opt_Med_Strategy,Long_Med_Strategy)
+by(FITNESS_UM, FITNESS_UM$change,  Best_Strategy_Finder)
+by(FITNESS_UM, FITNESS_UM$change,  Longest_Finder )
+
 ggsave(here("Figures", "Raw", "SA_UM_Duration_Fitness_SurfacePlot.pdf"),
-       width = 14, height =10, unit = 'in')
+       width = 10, height =10, unit = 'in')
 
 
 grapher_SA (FITNESS_RI,Opt_Med_Strategy,Long_Med_Strategy)
+by(FITNESS_RI, FITNESS_RI$change,  Best_Strategy_Finder)
+by(FITNESS_UM, FITNESS_RI$change,  Longest_Finder )
 ggsave(here("Figures", "Raw", "SA_RI_Duration_Fitness_SurfacePlot.pdf"),
-       width = 14, height =10, unit = 'in')
+       width = 10, height =10, unit = 'in')
 
 
 

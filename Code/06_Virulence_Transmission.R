@@ -56,37 +56,32 @@ source(here("Code","Helper_Function_Code", "06_Glux_Simulator.R"))
 source(here("Code", "Helper_Function_Code", "Plotters", "06_Triplot_Plotter.R"))
 ###
 
-Fitness_MODEL_PC_FULL_LOW_SUPP <- read.csv(here(
-  "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_low.csv"
-))
 
 Fitness_MODEL_PC_FULL_MED <- read.csv(here(
   "Output", "Fitness_Model",
   "FITNESS_MODEL_PC_med.csv"
 ))
 
-Fitness_MODEL_PC_HIGH_SUPP <- read.csv(here(
-  "Output", "Fitness_Model",
-  "FITNESS_MODEL_PC_high.csv"
-))
-
-FULL_MODEL_SIMULATOR_GFLUX_LOW <- FULL_MODEL_SIMULATOR_GFLUX(Fitness_MODEL_PC_FULL_LOW_SUPP,
-                                                              43.85965)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_LOW , 43.58965) + ggtitle("Low inoculation")
 
 FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_MED,
                                                               4385.96491)
 Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED, 4385.96491) 
 
-FULL_MODEL_SIMULATOR_GFLUX_HIGH <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_HIGH_SUPP,
-                                                               438596.49123)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_HIGH , 438596.49123)
+
+###THESE ARE FOR THE POINTS THAT I NEED###
+FULL_MODEL_SIMULATOR_GFLUX_MED_ALL <- FULL_MODEL_SIMULATOR_GFLUX_ALL(Fitness_MODEL_PC_FULL_MED,4385.96491)
+
+###Lowest RBC
+surviving_fit <- subset(FULL_MODEL_SIMULATOR_GFLUX_MED_ALL ,FULL_MODEL_SIMULATOR_GFLUX_MED_ALL $status != 'mort')
+LowestR <-surviving_fit[which.min(surviving_fit $R),]
+###Greatest cumulative gametocytes
+GreatestGmax <- FULL_MODEL_SIMULATOR_GFLUX_MED_ALL[which.max(FULL_MODEL_SIMULATOR_GFLUX_MED_ALL $GMax),]
+###Longest acute phase
+LongestAcute <- FULL_MODEL_SIMULATOR_GFLUX_MED_ALL[which.max(FULL_MODEL_SIMULATOR_GFLUX_MED_ALL $endtime),]
 
 
-###
-
-FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_MED,
-                                                              4385.96491)
-Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED, 4385.96491) 
+Three_Point_Strategies_Surfaceplot <- rbind(LowestR,
+                                                 GreatestGmax, 
+                                                 LongestAcute)
+Three_Point_Strategies_Surfaceplot$id <- c("RBC", "Gmax","Longest")
 

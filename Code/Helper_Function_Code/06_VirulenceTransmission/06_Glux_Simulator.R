@@ -19,8 +19,6 @@
 ### Set durations##
 ###################
 
-
-
 FULL_MODEL_SIMULATOR_GFLUX <- function(x,initial_value){
   
   ###find the optimal transmission investment
@@ -60,4 +58,35 @@ Gflux_DF$optimal <- ifelse(Gflux_DF$B_V == optimum_BV , 1,NA)
 
 
 return(Gflux_DF)
+}
+
+
+
+FULL_MODEL_SIMULATOR_GFLUX_ALL <- function(x,initial_value){
+
+  BV_CV_Sucess <- subset(x,x$status != 'Fail')
+  
+    
+  ### We need to rerun the Fitness_Model for the Gflux
+  Fitness_MODEL_PC_GFlux <- mcmapply(Simulator_MalariaPC_DDE_BC_GFLUX,
+                                     c(BV_CV_Sucess$B_V),
+                                     c(BV_CV_Sucess$C_V),
+                                     c(initial_value),
+                                     c(BV_CV_Sucess$endtime),
+                                      mc.cores = 3,
+                                      SIMPLIFY = FALSE)
+  
+  
+  
+  for (strain in seq(1,nrow(BV_CV_Sucess))){
+    Fitness_MODEL_PC_GFlux[[strain]]$status <- BV_CV_Sucess$status[[strain]]
+  }
+  
+  Gflux_DF <- do.call(rbind,
+                      lapply(Fitness_MODEL_PC_GFlux, Virulence_Gam_Finder))
+  
+  
+  
+  
+  return(Gflux_DF)
 }

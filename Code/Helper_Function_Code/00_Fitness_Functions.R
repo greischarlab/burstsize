@@ -129,4 +129,35 @@ Duration_Finder <- function(x_list, mu_M_c){
   return(tmp)
 }
 
+###NO DEATH
+Finder_RM_Nodeath <- function(x_list, mu_M_c) {
 
+    p =  4.0e-6
+    unique_B_V <- unique(x_list$B_V)
+    unique_C_V <- unique(x_list$C_V)
+    
+    rate = (1 - unique_C_V) * unique_B_V *
+      ((x_list[,"R"] * p)/((p * x_list[,"R"]) + mu_M_c))
+    
+    RM_time_df <-  cbind.data.frame(time = x_list[,'time'],
+                                    rate = rate, 
+                                    B_V = unique_B_V ,
+                                    C_V = unique_C_V)
+    
+    min_RM <- RM_time_df[which.min(RM_time_df$rate),]
+    
+    end_time <- subset(RM_time_df, 
+                       RM_time_df$time >= min_RM$time & 
+                         RM_time_df$rate >= 1)[1,'time']
+    
+    
+    df <- data.frame(
+      endtime =  end_time,
+      up_down =  'up',
+      end_fitness = NA,
+      status = 'success')
+    
+  
+  
+  return(df)
+}
