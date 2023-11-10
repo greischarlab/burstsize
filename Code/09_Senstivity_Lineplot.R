@@ -19,8 +19,8 @@
 library(here)
 
 ### Packages to load
-source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-
+source(here("Code", "Helper_Function_Code", "00_Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_best_long_strategyfinder.R"))
 ### We need the data here and give everyone the grouping name
 
 ###Original model
@@ -90,30 +90,35 @@ FITNESS_75_O <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.75 &
   FITNESS_ALL$status == "success")[, c("B_V", "end_fitness")]
 
 
-Fitness_CosntantC_Lineplot <- ggplot(
-  FITNESS_75,
+
+###Have to do to a silly convoluted way because facet_wrap and
+###would not let me have x-axis on both facets without letting me 
+###changing through scale_x_continuous
+
+
+Fitness_CosntantC_Lineplot_Merozoite_Mortality <- 
+  ggplot(
+  subset(FITNESS_75,
+         FITNESS_75$grouping == 'UM'),
   aes(
     x = B_V,
     y = end_fitness,
     group = as.factor(change),
     color = as.factor(change)))+
-  geom_line(size = 1.2) +
-  facet_wrap(~grouping,
-    ncol = 1,
-    labeller = as_labeller(Parameter_Names)
-  ) +
+  geom_line(size = 1.0) +
+  scale_x_continuous(breaks = seq(12,32,2),limits=c(12,32))+
+  
   annotate("line",
     x = FITNESS_75_O$B_V,
     y = FITNESS_75_O$end_fitness,
     size = 1.2
   ) +
   scale_color_manual(values = c(
-    "#ef233c", "#118ab2",
-    "#118ab2", "#ef233c",
-    "#ef233c", "#118ab2"
+    "#ef2366", "#1199ee"
   )) +
-  xlab("Burst size") +
-  ylab("Cumulative transmission potential") +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
+  ylab("Cumulative \ntransmission potential") +
+  ggtitle("A. Merozoite mortality, uM")+
   theme_bw() +
   theme(
     strip.background = element_blank(),
@@ -121,9 +126,44 @@ Fitness_CosntantC_Lineplot <- ggplot(
     legend.position = "off",
     axis.text = element_text(size = 13, color = "black"),
     axis.title = element_text(size = 14, color = "black"),
-    strip.text = element_text(size = 15)
-  )
+    strip.text = element_text(size = 15))
+
+
+Fitness_CosntantC_Lineplot_Initial_RI <- 
+  ggplot(
+    subset(FITNESS_75,
+           FITNESS_75$grouping == 'RI'),
+    aes(
+      x = B_V,
+      y = end_fitness,
+      group = as.factor(change),
+      color = as.factor(change)))+
+  geom_line(size = 1.0) +
+  scale_x_continuous(breaks = seq(12,32,2), limits=c(12,32))+
+  
+  annotate("line",
+           x = FITNESS_75_O$B_V,
+           y = FITNESS_75_O$end_fitness,
+           size = 1.2
+  ) +
+  scale_color_manual(values = c(
+     "#1199ee","#ef2366"
+  )) +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
+  ylab("Cumulative \ntransmission potential") +
+  ggtitle("B. Initial red blood cells, R(0)")+
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "off",
+    axis.text = element_text(size = 13, color = "black"),
+    axis.title = element_text(size = 14, color = "black"),
+    strip.text = element_text(size = 15))
+
+Fitness_CosntantC_Lineplot_Merozoite_Mortality/Fitness_CosntantC_Lineplot_Initial_RI
+
 
 ggsave(here("Figures", "Raw", "Supp_Optimal_75_SA.pdf"),
-  height = 8, width = 5, units = "in"
+  height = 6, width = 5, units = "in"
 )
