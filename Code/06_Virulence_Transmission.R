@@ -50,20 +50,20 @@ library(here)
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
-source(here("Code", "Helper_Function_Code", "Virulence_Transmission_BurstSize.R"))
+source(here("Code", "Helper_Function_Code", "06_Virulence_Transmission_BurstSize.R"))
 source(here("Code","Simulator_Code", "Simulator_Main_Gflux.R"))
 source(here("Code","Helper_Function_Code", "06_Glux_Simulator.R"))
 source(here("Code", "Helper_Function_Code", "Plotters", "06_Triplot_Plotter.R"))
 ###
-
-
 Fitness_MODEL_PC_FULL_MED <- read.csv(here(
   "Output", "Fitness_Model",
   "FITNESS_MODEL_PC_med.csv"
 ))
 
 
-FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX (Fitness_MODEL_PC_FULL_MED,
+###Run a specific simulating function that gives me the total cumualtive gametocytes
+###over the course of the infection
+FULL_MODEL_SIMULATOR_GFLUX_MED <- FULL_MODEL_SIMULATOR_GFLUX(Fitness_MODEL_PC_FULL_MED,
                                                               4385.96491)
 Triplot_Plotter(FULL_MODEL_SIMULATOR_GFLUX_MED, 4385.96491) 
 

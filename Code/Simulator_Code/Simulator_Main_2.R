@@ -127,7 +127,7 @@ Simulator_MalariaPC_DDE_BC_Cut <- function(B_V, C_V, initialvalue, endtime) {
 ##########################
 ###This is a supplementary figure to show that the mortality threshold 
 ###may or may not matter 
-a <- function(B_V, C_V, initialvalue) {
+Simulator_Malaria_BC_NODEATH<- function(B_V, C_V, initialvalue) {
   parameters_n <-
     c(lambda = 370000, # Replenishment rate of RBC (#SimulatedTimeSeries.R)
       K = 19968254, # Carrying capacity of RBC population in the absence of mortality
