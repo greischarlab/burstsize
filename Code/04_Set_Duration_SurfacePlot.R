@@ -22,10 +22,12 @@ source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "average_life_span_RC.R"))
-source(here("Code", "Helper_Function_Code","FUNC_04_SetDuration_Plotter.R"))
-source(here("Code", "Helper_Function_Code","PLOTTER_04_TRANSSURFACEPLOT.R"))
+source(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_SetDuration_Plotter.R"))
+source(here("Code", "Helper_Function_Code","04_SETDURATION","PLOTTER_04_TRANSSURFACEPLOT.R"))
+source(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_average_life_span_RC.R"))
 
-source(here("Code", "Helper_Function_Code","04_SET_DURATION_HELPER_FUNCTION"))
+source(here("Code", "Helper_Function_Code","04_SET_DURATIsource(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_OptB_Finder_SetDuration.R"))
+ON_HELPER_FUNCTION"))
 
 ifelse(file.exists(here("Output",
                         "Full_Model",
@@ -57,13 +59,13 @@ FULL_MODEL_100_MED_NO_DEATH <- as.data.frame(fread(here("Output",
 #############################################################################
 Opt_Burst_MED <- Optimalburstsize_SetDuration_Finder(FULL_MODEL_100_MED_NO_DEATH,
                                                      Fitness_MODEL_PC_FULL_MED, 
-                                                     0.75)
+                                                     0.76)
 
 
 
-PRIPC_MED_75 <-Trans_SurfacePlot_Maker(x = FULL_MODEL_100_MED,
+PRIPC_MED_75 <-Trans_SurfacePlot_Maker(x = FULL_MODEL_100_MED_NO_DEATH,
                                        y = Fitness_MODEL_PC_FULL_MED, 
-                                       CV_vec = c(0.75),
+                                       CV_vec = c(0.76),
                                        4385.96491)
 
 PRIPC_MED_75 $time <- round(PRIPC_MED_75 $time,3)

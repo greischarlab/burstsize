@@ -29,7 +29,7 @@ FULL_MODEL_SIMULATING_Duration <- function(initial_value, mu_M_value, id){
   R_val <- 8500000 #initial red blood cell
   initial_RM_modifier <- 1.5 #
 
-  RM_limit_1 <- initial_RM_modifier * ((p_val * R_val) + mu_M) / (p_val * R_val)
+  RM_limit_1 <- initial_RM_modifier * (1/((100* (1))/(100 + 0.025))^100) *((p_val * R_val) + mu_M) / (p_val * R_val)
 
   B_V_C_V$Establish <- ifelse((1 - B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
                             "Establish", "Fail")

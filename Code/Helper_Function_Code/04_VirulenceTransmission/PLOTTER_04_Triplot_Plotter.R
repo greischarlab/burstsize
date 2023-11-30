@@ -38,13 +38,12 @@ rbcmin_to_burst_size_GG <-
   theme_bw() +
   theme(panel.grid = element_blank()) +
   xlab(expression(paste("Burst size", "( ", beta, ")"))) +
-  ylab("Minimum RBC density (log10)") +
+  ylab("Minimum RBC \ndensity") +
   theme(
     legend.position = "none",
-    axis.text = element_text(size = 12, color = "black"),
-    axis.title = element_text(size = 13, color = "black")
+    axis.text = element_text(size = 14, color = "black"),
+    axis.title = element_text(size = 16, color = "black")
   )
-
 }
 
 ### Maximum gametocyte density to burst size
@@ -83,12 +82,12 @@ GCUM_GG_Plotter  <- function(x){
   theme_bw() +
   theme(panel.grid = element_blank()) +
   xlab(expression(paste("Burst size", "( ", beta, ")"))) +
-  ylab("Cumulative gametocyte density (log10)") +
-  theme(
-    legend.position = "none",
-    axis.text = element_text(size = 12, color = "black"),
-    axis.title = element_text(size = 13, color = "black")
-  )
+  ylab("Cumulative \ngametocyte density") +
+    theme(
+      legend.position = "none",
+      axis.text = element_text(size = 14, color = "black"),
+      axis.title = element_text(size = 16, color = "black")
+    )
 }
 ##################################################
 ### Length of the acute phase to the burst size ##
@@ -125,11 +124,11 @@ ACUTE_PHASE_GG_Plotter <- function(x){
   theme_bw() +
   theme(panel.grid = element_blank()) +
   xlab(expression(paste("Burst size", "( ", beta, ")"))) +
-  ylab("Acute phase (days)") +
+  ylab("Acute phase \n(days)") +
   theme(
     legend.position = "none",
-    axis.text = element_text(size = 12, color = "black"),
-    axis.title = element_text(size = 13, color = "black")
+    axis.text = element_text(size = 14, color = "black"),
+    axis.title = element_text(size = 16, color = "black")
   )
 }
 

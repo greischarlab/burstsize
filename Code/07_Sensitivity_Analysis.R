@@ -6,8 +6,8 @@
 library(here)
 
 ### Packages to load
-source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "02_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "00_Fitness_Functions.R"))
 source(here("Code", "Helper_Function_Code", "07_sensitivity_analysis_functions.R"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 
@@ -47,7 +47,6 @@ FULL_MODEL_PC_UM <- mcmapply(Sens_Analysis,
 
 
 
-
 ### Combine
 FULL_MODEL_PC_UM_DT <- do.call(rbind, FULL_MODEL_PC_UM)
 
@@ -59,7 +58,8 @@ write.csv(FULL_MODEL_PC_UM_DT, file = here(
 ))
 
 
-###Because the mu_M changes...
+###Because the mu_M changes... We need to this some data-wrangling to make sure
+###that I'm getting the duration correctly 
 
 FULL_MODEL_PC_UM_Changes <- split(FULL_MODEL_PC_UM_DT, FULL_MODEL_PC_UM_DT$change)
 FULL_MODEL_PC_UM_36<- split(FULL_MODEL_PC_UM_Changes[[1]], list(FULL_MODEL_PC_UM_Changes[[1]]$B_V,
@@ -72,7 +72,7 @@ FULL_MODEL_PC_UM_60<- split(FULL_MODEL_PC_UM_Changes[[2]], list(FULL_MODEL_PC_UM
 FULL_36_MODEL_BVCV <- do.call(rbind, lapply(FULL_MODEL_PC_UM_36, function(x) unique(x[,c("B_V", "C_V")])))
 FULL_60_MODEL_BVCV <- do.call(rbind, lapply(FULL_MODEL_PC_UM_60, function(x) unique(x[,c("B_V", "C_V")])))
 
-
+###Get how long the acute phase ends for a mortality rate of 36
 Duration_UM_PC_36 <- do.call(
   rbind,
   mclapply(FULL_MODEL_PC_UM_36,
@@ -82,7 +82,9 @@ Duration_UM_PC_36 <- do.call(
 
 Duration_UM_PC_36$B_V <-FULL_36_MODEL_BVCV$B_V
 Duration_UM_PC_36$C_V <-FULL_36_MODEL_BVCV$C_V
-Duration_UM_PC_36$change<-36
+Duration_UM_PC_36$change <-36
+
+###Get how long the acute phase ends for a mortality rate of 60
 
 Duration_UM_PC_60 <- do.call(
   rbind,
@@ -100,7 +102,7 @@ Duration_UM_PC <- rbind(Duration_UM_PC_36,Duration_UM_PC_60)
 FITNESS_UM <- Fitness_Finder_SA(
                   B_V_C_V_UM_F,
                   Duration_UM_PC,
-                   4385.96491, "UM")
+                   4385.96491, "UM") ###This is the fitness function
 
 write.csv(FITNESS_UM , file = here(
   "Output", "Fitness_Model",
@@ -200,3 +202,6 @@ write.csv(FITNESS_L , file = here(
   "Output", "Fitness_Model",
   "FITNESS_L.csv"
 ))
+
+###After you have all the files saved you can proceed to code 
+###08_Sensitivity_SurfacePlots_Supp.R and 09_Sensitivity_LinePlot 

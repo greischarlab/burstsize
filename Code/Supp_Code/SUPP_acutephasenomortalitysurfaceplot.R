@@ -10,7 +10,7 @@ mu_M <- 48  #the mu_mortality
 R_val <- 8500000 #initial red blood cell
 initial_RM_modifier <- 1.5 #
 
-RM_limit_1 <- initial_RM_modifier * ((p_val * R_val) + mu_M) / (p_val * R_val)
+RM_limit_1 <- initial_RM_modifier *  (1/((100* (1))/(100 + 0.025))^100)* ((p_val * R_val) + mu_M) / (p_val * R_val)
 
 B_V_C_V$Establish <- ifelse((1 - B_V_C_V$C_V) * B_V_C_V$B_V >= RM_limit_1,
                             "Establish", "Fail")
@@ -158,6 +158,6 @@ GG_Fitness_Cut_PC <-
            x = 45, y = 0.1, label = "Host \nMortality",
            size = 5, color = "#b8fcd5"
   )
-
+GG_Fitness_Cut_PC 
 ggsave(here("Figures", "Raw", "Supp_nomort_Surfaceplot.pdf"),
        width = 8, height =8, unit = "in")

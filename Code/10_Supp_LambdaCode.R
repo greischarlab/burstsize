@@ -6,8 +6,8 @@ library(here)
 source(here("Code","Helper_Function_Code",
             "07_sensitivity_analysis_functions.R"))
        
-B_V = c(14.5)
-C_V = 0.75
+B_V = c(15.5)
+C_V = 0.76
 change = c(277500, 370000, 462500)
 B_V_C_V <- expand.grid(B_V = B_V, C_V = C_V, change = change)
 

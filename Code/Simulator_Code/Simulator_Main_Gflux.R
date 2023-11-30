@@ -37,7 +37,7 @@ Simulator_MalariaPC_DDE_BC_GFLUX<- function(B_V, C_V, initial_value, endtime) {
     Gflux = 0
   )
   
-  times <- seq(0, 200, by = 1 / 10)
+  times <- seq(0, 100, by = 1 / 10)
   
   out_DDE <- ode(
     y = inits_n, times = times,

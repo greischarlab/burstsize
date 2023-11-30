@@ -62,7 +62,7 @@ return(Gflux_DF)
 
 
 
-FULL_MODEL_SIMULATOR_GFLUX_ALL <- function(x,initial_value){
+FULL_MODEL_SIMULATOR_GFLUX_ALL <- function(x, initial_value){
 
   BV_CV_Sucess <- subset(x,x$status != 'Fail')
   

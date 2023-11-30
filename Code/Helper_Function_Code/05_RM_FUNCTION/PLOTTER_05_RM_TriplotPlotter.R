@@ -53,7 +53,7 @@ RM_Plotter <- function(x,y){
       ),
     ) +
     xlab("Days post-infection") +
-    ylab("Expected merozoites \n invading (uncommited) (R_M)") +
+    ylab("Effective \n merozoite number (R_M)") +
     scale_x_continuous(
       expand=c(0,0),
       breaks = seq(0, 50, 5),
@@ -260,6 +260,7 @@ RM_Plotter <- function(x,y){
         "black"
       ),
     )  +
+    xlab("Days post-infection")+
     ylab("Daily transmission \n probability (P_c)") +
     scale_x_continuous(
       expand = c(0, 0),

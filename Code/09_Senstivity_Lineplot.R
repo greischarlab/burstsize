@@ -19,7 +19,7 @@
 library(here)
 
 ### Packages to load
-source(here("Code", "Helper_Function_Code", "00_Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "FUNC_00_best_long_strategyfinder.R"))
 ### We need the data here and give everyone the grouping name
 
@@ -66,26 +66,25 @@ FITNESS_ALL_SPLIT <- split(FITNESS_ALL, FITNESS_ALL$change)
 FITNESS_MAX <- do.call(rbind, by(FITNESS_ALL, FITNESS_ALL$change, function(x) x[which.max(x$end_fitness), ],
   simplify = FALSE
 ))
-FITNESS_MAX$RC <- FITNESS_MAX$B_V * (1 - FITNESS_MAX$C_V)
-FITNESS_MAX$increase <- ifelse(FITNESS_MAX$RC > 3.625, "increase", "decrease")
-FITNESS_MAX$cum_trans <- ifelse(FITNESS_MAX$end_fitness > 28.04553,
-  "Fitter", "Not_Fitter"
-)
 
 ########################################
 ### CONSTANT TRANSMISSION INVESTMENT ####
 ########################################
-FITNESS_75 <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.75 &
+
+Optimal_Transmission_Investment = 0.76
+
+
+FITNESS_OPT<- subset(FITNESS_ALL, FITNESS_ALL$C_V == Optimal_Transmission_Investment &
   FITNESS_ALL$change != 1 &
   FITNESS_ALL$status == "success")
 
-na.omit(by(FITNESS_75, list(FITNESS_75$change,
-                    FITNESS_75$grouping),
+na.omit(by(FITNESS_OPT , list(FITNESS_OPT$change,
+                             FITNESS_OPT $grouping),
    Best_Strategy_Finder))
 
 
 
-FITNESS_75_O <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.75 &
+FITNESS_OPT_O <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.76 &
   FITNESS_ALL$change == 1 &
   FITNESS_ALL$status == "success")[, c("B_V", "end_fitness")]
 
@@ -98,8 +97,8 @@ FITNESS_75_O <- subset(FITNESS_ALL, FITNESS_ALL$C_V == 0.75 &
 
 Fitness_CosntantC_Lineplot_Merozoite_Mortality <- 
   ggplot(
-  subset(FITNESS_75,
-         FITNESS_75$grouping == 'UM'),
+  subset(FITNESS_OPT,
+         FITNESS_OPT$grouping == 'UM'),
   aes(
     x = B_V,
     y = end_fitness,
@@ -109,8 +108,8 @@ Fitness_CosntantC_Lineplot_Merozoite_Mortality <-
   scale_x_continuous(breaks = seq(12,32,2),limits=c(12,32))+
   
   annotate("line",
-    x = FITNESS_75_O$B_V,
-    y = FITNESS_75_O$end_fitness,
+    x = FITNESS_OPT_O$B_V,
+    y = FITNESS_OPT_O$end_fitness,
     size = 1.2
   ) +
   scale_color_manual(values = c(
@@ -142,8 +141,8 @@ Fitness_CosntantC_Lineplot_Initial_RI <-
   scale_x_continuous(breaks = seq(12,32,2), limits=c(12,32))+
   
   annotate("line",
-           x = FITNESS_75_O$B_V,
-           y = FITNESS_75_O$end_fitness,
+           x = FITNESS_OPT_O$B_V,
+           y = FITNESS_OPT_O$end_fitness,
            size = 1.2
   ) +
   scale_color_manual(values = c(
