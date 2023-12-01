@@ -8,7 +8,7 @@ SUCCESS_BV_CV <- subset(x,
                        x$status == 'success' & 
                        x$C_V %in%  c_value_interest)
 
-  FULL_MODEL_PC_100_Success<- mcmapply(Simulator_MalariaPC_DDE_BC_Cut  ,
+FULL_MODEL_PC_100_Success<- mcmapply(Simulator_MalariaPC_DDE_BC_Cut  ,
                              c(SUCCESS_BV_CV$B_V),
                              c_value_interest,
                              c(initialvalue),
@@ -48,6 +48,24 @@ for (k in seq(1,length(FULL_MODEL_PC_Mort_100T_FITNESS_split ))){
   tmp[tmp$time > unique(tmp$endtime),][,c("R","G")] <- 0
   FULL_MODEL_PC_Mort_100T_FITNESS_split [[k]] <- tmp
 }
+FULL_MODEL_PC_100_MORT<- mcmapply(Simulator_Malaria_BC ,
+                             c(SUCCESS_BV_CV$B_V),
+                             c(SUCCESS_BV_CV$C_V),
+                             c(initialvalue),
+                             100,
+                             mc.cores = 4,
+                             SIMPLIFY = FALSE)
+
+ 
+ FULL_MODEL_PC_100_DT <- do.call(rbind, FULL_MODEL_PC_100)
+
+
+ write.csv(FULL_MODEL_PC_100_DT, file = here(
+  "Output", "Full_Model",
+  paste("FULL_MODEL_100_PC_DT",name,".csv",sep="")
+ ))
+}
+
 
 
 FULL_MORT <- do.call(rbind,FULL_MODEL_PC_Mort_100T_FITNESS_split)
@@ -61,7 +79,7 @@ FULL <- rbind(FULL_MORT[,c("time","R","G","B_V","C_V","status")],
   "Output", "Full_Model",
   paste("FULL_MODEL_100_PC_DT",name,c_value_interest,".csv",sep="")
  ))
-}
+
 
 
 

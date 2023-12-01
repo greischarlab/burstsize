@@ -4,7 +4,8 @@
 library(here)
 
 source(here("Code","Helper_Function_Code",
-            "07_sensitivity_analysis_functions.R"))
+            "08_SENSITIVITY_ANALYSIS",
+            "FUNC_08_sensitivity_analysis_functions.R"))
        
 B_V = c(15.5)
 C_V = 0.76
@@ -36,7 +37,7 @@ ggplot(subset(Lambda_Supp_DF,
            group = as.factor(change)))+
   geom_line(linewidth= 0.89)+
   xlab("Days post-infection")+
-  ylab("RBC abundance (log10)") + 
+  ylab("RBC abundance") + 
   scale_color_manual(name = "RBC replenishment",
                        values = c('#1199ee','black','#ef2366'))+
   scale_y_log10(

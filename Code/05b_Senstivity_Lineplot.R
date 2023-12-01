@@ -17,7 +17,6 @@
 
 
 library(here)
-
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "FUNC_00_best_long_strategyfinder.R"))
@@ -104,9 +103,8 @@ Fitness_CosntantC_Lineplot_Merozoite_Mortality <-
     y = end_fitness,
     group = as.factor(change),
     color = as.factor(change)))+
-  geom_line(size = 1.0) +
-  scale_x_continuous(breaks = seq(12,32,2),limits=c(12,32))+
-  
+  geom_line(size = 1.0) 
+  scale_x_continuous(breaks = seq(12,32,2), limits=c(12,32))+
   annotate("line",
     x = FITNESS_OPT_O$B_V,
     y = FITNESS_OPT_O$end_fitness,
@@ -130,8 +128,8 @@ Fitness_CosntantC_Lineplot_Merozoite_Mortality <-
 
 Fitness_CosntantC_Lineplot_Initial_RI <- 
   ggplot(
-    subset(FITNESS_75,
-           FITNESS_75$grouping == 'RI'),
+    subset(FITNESS_OPT,
+           FITNESS_OPT$grouping == 'RI'),
     aes(
       x = B_V,
       y = end_fitness,
@@ -165,4 +163,42 @@ Fitness_CosntantC_Lineplot_Merozoite_Mortality/Fitness_CosntantC_Lineplot_Initia
 
 ggsave(here("Figures", "Raw", "Supp_Optimal_75_SA.pdf"),
   height = 6, width = 5, units = "in"
+)
+
+###Supplementary:
+
+Fitness_CosntantC_Lineplot_Lambda <- 
+  ggplot(
+    subset(FITNESS_OPT,
+           FITNESS_OPT$grouping == "lambda"),
+    aes(
+      x = B_V,
+      y = end_fitness,
+      group = as.factor(change),
+      color = as.factor(change)))+
+  geom_line(size = 1.0) +
+  scale_x_continuous(breaks = seq(12,32,2),limits=c(12,32))+
+  
+  annotate("line",
+           x = FITNESS_OPT_O$B_V,
+           y = FITNESS_OPT_O$end_fitness,
+           size = 1.2
+  ) +
+  scale_color_manual(values = c(
+    "#ef2366", "#1199ee"
+  )) +
+  xlab(expression(paste("Burst size", "( ", beta, ")"))) +
+  ylab("Cumulative \ntransmission potential (f)") +
+  ggtitle("RBC replenishment, uM")+
+  theme_bw() +
+  theme(
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "off",
+    axis.text = element_text(size = 13, color = "black"),
+    axis.title = element_text(size = 14, color = "black"),
+    strip.text = element_text(size = 15))
+
+ggsave(here("Figures", "Raw", "Supp_Line_Lambda.pdf"),
+       height = 3, width = 5, units = "in"
 )

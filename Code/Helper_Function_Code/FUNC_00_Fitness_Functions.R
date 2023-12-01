@@ -88,7 +88,7 @@ Finder_RM <- function(x_list, mu_M_c) {
      unique_B_V <- unique(x_list$B_V)
      unique_C_V <- unique(x_list$C_V)
      
-     rate =  ((100* (1))/(100 + 0.025))^100* (1 - unique_C_V) * unique_B_V *
+     rate =  ((100* (1))/(100 + 0.025))^100 * (1 - unique_C_V) * unique_B_V *
                 ((x_list[,"R"] * p)/((p * x_list[,"R"]) + mu_M_c))
     
       RM_time_df <-  cbind.data.frame(time = x_list[,'time'],
