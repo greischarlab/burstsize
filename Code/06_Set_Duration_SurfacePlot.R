@@ -17,17 +17,15 @@
 ### Set durations##
 ###################
 library(here)
-source(here("Code", "Helper_Function_Code", "Packages_Loader.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
 ### Packages to load
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 source(here("Code", "Helper_Function_Code", "FUNC_00_Fitness_Functions.R"))
-source(here("Code", "Helper_Function_Code", "average_life_span_RC.R"))
-source(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_SetDuration_Plotter.R"))
+###Specific to 04
+source(here("Code", "Helper_Function_Code", "04_SETDURATION","FUNC_04_average_life_span_RC.R"))
 source(here("Code", "Helper_Function_Code","04_SETDURATION","PLOTTER_04_TRANSSURFACEPLOT.R"))
 source(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_average_life_span_RC.R"))
-
-source(here("Code", "Helper_Function_Code","04_SET_DURATIsource(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_OptB_Finder_SetDuration.R"))
-ON_HELPER_FUNCTION"))
+source(here("Code", "Helper_Function_Code","04_SETDURATION","FUNC_04_OptB_Finder_SetDuration.R"))
 
 ifelse(file.exists(here("Output",
                         "Full_Model",
@@ -73,8 +71,8 @@ PRIPC_MED$cutprob <- cut(PRIPC_MED$pripc, breaks=c(-1,0,0.05,0.1,.15,.2,.25,.3,.
 
 
 
-Set_Duration_Plotter(PRIPC_MED,Opt_Burst_MED[[3]])
+Set_Duration_Plotter(PRIPC_MED,Opt_Burst_MED[[3]],Opt_Burst_MED[[2]])
 
-ggsave(here("Figures", "Raw", "TransProb_SurfacePlot.pdf"),
+ggsave(here("Figures", "TransProb_SurfacePlot.pdf"),
        width = 7, height =4.5, unit = "in")
 

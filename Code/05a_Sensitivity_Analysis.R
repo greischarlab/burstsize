@@ -7,8 +7,8 @@ library(here)
 
 ### Packages to load
 source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
-source(here("Code", "Helper_Function_Code", "00_Fitness_Functions.R"))
-source(here("Code", "Helper_Function_Code", "07_sensitivity_analysis_functions.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "08_SENSITIVITY_ANALYSIS", "FUNC_08_sensitivity_analysis_functions.R"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
 
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_CUT.cpp"))

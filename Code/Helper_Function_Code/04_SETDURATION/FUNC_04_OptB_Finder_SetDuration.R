@@ -40,10 +40,10 @@ equal_RC <- average_life_span_RC(FULL_MODEL_100_F,
 ###figures 
 doi <-  c(5,20,25,50,75)
 
-doi_points <- filter(equal_RC, equal_RC$lifespan %in% c(5,20,25,50,75))
+doi_points <- filter(equal_RC, equal_RC$lifespan %in% c(5,10,20,30,40,50))
 
 equal_RC_nomin <- subset(equal_RC,equal_RC$group == 'fit' &
-                           equal_RC$lifespan %in% c(5,20,25,30,40,50,70,100))
+                           equal_RC$lifespan %in% seq(1,51,1))
 
 
 return(list(equal_RC, doi_points, equal_RC_nomin))

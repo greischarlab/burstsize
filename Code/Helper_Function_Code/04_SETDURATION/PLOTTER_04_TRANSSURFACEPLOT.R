@@ -1,18 +1,21 @@
+###This makes figure 6
 
-Set_Duration_Plotter <- function(x,y){
+
+Set_Duration_Plotter <- function(x,y,y_2){
   
   ggplot(subset(x,x$id !='Fail' & x$B_V < 51)) + 
   geom_raster(aes( x= time, y= B_V, fill = (cutprob))) +
-  geom_point(data = y,aes( x= lifespan, y=B_V), size = 3, 
-             color ="#FF116B")+
+  geom_line(data = y ,aes( x= lifespan, y=B_V), size = 1, 
+             color ="orange")+
+  geom_point(data = y_2 ,aes( x= lifespan, y=B_V), size = 3, 
+              fill  ="orange", color = 'black', shape = 21)+
   scale_fill_viridis(option = 'mako', discrete = 'TRUE',
-                     name = "Transmission \n Probability",
+                     name = "Transmission \n Probability (f)",
                      guide = guide_coloursteps(even.steps = FALSE))+
-  xlab("Days post infection") + ylab("Burst size") + 
-  scale_x_continuous(expand=c(0,0))+
-  scale_y_continuous(expand=c(0,0), limits= c(14,50))+ 
-  geom_vline(xintercept = c(5,30,50), color = 'black',
-             linetype = 2, alpha = 0.8)+
+  xlab("Days post-infection") +  
+  ylab(expression(paste("Burst size", "( ", beta, ")"))) + 
+  scale_x_continuous(expand=c(0,0), limits =c(0,51))+
+  scale_y_continuous(expand=c(0,0))+ 
   geom_hline(yintercept = 25.3, color = 'red')+
   theme_classic()+
   theme(axis.text = element_text(size = 14,color = 'black'),

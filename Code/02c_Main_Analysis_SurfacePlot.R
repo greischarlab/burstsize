@@ -16,7 +16,9 @@
 # duration is in the supp.
 #
 
-### Packages to load
+################################
+### Packages and Code to load###
+################################
 library(here)
 source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
 source(here("Code", "Helper_Function_Code", "FUNC_00_Grapher_vert_hor.R"))
@@ -81,9 +83,9 @@ MED_GG_SurfacePlot_D<- MAIN_SURFACEPLOT_GG_GRAPHER_DURATION(Fitness_MODEL_PC_FUL
 HIGH_GG_SurfacePlot_D<- MAIN_SURFACEPLOT_GG_GRAPHER_DURATION(Fitness_MODEL_PC_HIGH_SUPP  ,"High")
 
 ###IF you want to see the longest strategy (B_V/C_V)
-Longest_Finder(Fitness_MODEL_PC_FULL_LOW_SUPP) #4/0.07
-Longest_Finder(Fitness_MODEL_PC_FULL_MED ) #4/0.07
-Longest_Finder(Fitness_MODEL_PC_HIGH_SUPP) #4/0.07
+Longest_Finder(Fitness_MODEL_PC_FULL_LOW_SUPP) # 44.5 
+Longest_Finder(Fitness_MODEL_PC_FULL_MED ) #33.1
+Longest_Finder(Fitness_MODEL_PC_HIGH_SUPP) #21.3 
 
 LOW_GG_SurfacePlot_D + MED_GG_SurfacePlot_D + HIGH_GG_SurfacePlot_D 
 

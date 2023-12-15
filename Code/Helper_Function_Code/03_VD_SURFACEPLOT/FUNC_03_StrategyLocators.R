@@ -34,6 +34,7 @@ Fitness_MODEL_PC_FULL_MED <- read.csv(here(
 FULL_MODEL_SIMULATOR_GFLUX_MED_ALL <- FULL_MODEL_SIMULATOR_GFLUX_ALL(
                                       Fitness_MODEL_PC_FULL_MED,4385.96491)
 
+
 ###Lowest RBC
 surviving_fit <- subset(FULL_MODEL_SIMULATOR_GFLUX_MED_ALL ,FULL_MODEL_SIMULATOR_GFLUX_MED_ALL $status != 'mort')
 LowestR <-surviving_fit[which.min(surviving_fit $R),]

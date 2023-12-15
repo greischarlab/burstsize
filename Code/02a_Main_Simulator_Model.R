@@ -15,8 +15,8 @@ source(here("Code", "Helper_Function_Code", "FUNC_00_Packages_Loader.R"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_CUT.cpp"))
 sourceCpp(here("Code", "RCPP_Code", "rcpp_malaria_dynamics_UNCUT.cpp"))
 source(here("Code", "Simulator_Code", "Simulator_Main_2.R"))
-source(here("Code", "Helper_Function_Code", "00_Fitness_Functions.R"))
-source(here("Code", "Helper_Function_Code", "02_Simulator_Code.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_00_Fitness_Functions.R"))
+source(here("Code", "Helper_Function_Code", "FUNC_02_Simulator_Code.R"))
 
 ifelse(dir.exists(here("Output/Full_Model")) == FALSE,
   dir.create("Output/Full_Model"),
